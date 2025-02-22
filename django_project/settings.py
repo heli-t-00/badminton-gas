@@ -78,9 +78,17 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'sqlite3': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'default': {
+        'NAME': 'chump_zesty_bleak_339755',
+        'HOST': 'ep-lingering-tree-a29johzt.eu-central-1.aws.neon.tech',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_sKcLzWb34rgO',
+        'ENGINE': 'django.db.backends.postgresql',
+        'PORT': '5432',
     }
 }
 
