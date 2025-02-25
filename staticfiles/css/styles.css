@@ -1,16 +1,4 @@
-{% extends "base.html" %} 
-{% comment %} this template inherits from base.html, base.html is the parent template, and this file adds / modifies sections of it {% endcomment %}
-
-{% block title %}Home{% endblock %}
-
-{% block content %}
-{% comment %} page specific content will be inserted {% endcomment %}
-<div class="container">
-{% if user.is_authenticated %}
-{% comment %} this checks whether user is logged in {% endcomment %}
-{% load static %}
-<style>
-  /* Google fonts import */
+/* Google fonts import */
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Oswald:wght@200;300;400;500;600;700&display=swap');
 
 /* Asterisk wildcard selector to override default styles added by the browser */
@@ -161,7 +149,7 @@ main {
 }
 
 #circle-cover-bg {
-    background: url('/static/images/badminton_courtBGAS.PNG') no-repeat top center / cover;
+    background: url('../images/badminton_courtBGAS.PNG') no-repeat top center / cover;
     height: 90vw;
     width: 90vw;
     margin-bottom: 20px;
@@ -175,6 +163,42 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Meetup Times section */
+#times {
+    background: url('../images/dublin-city.webp') no-repeat center/cover;
+    /* Handles responsivity without the need for a media query */
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#times div {
+    color: #fafafa;
+    background-color: rgba(0, 0, 0, .6);
+    padding: 15px;
+    text-align: center;
+    /* This will not wrap on screens of less than 400px wide.
+    Each div will expand to fill the available space on its row */
+    flex-basis: 200px;
+    flex-grow: 1;
+    /* Creates a grid of meetup time dives over the background image */
+    border: 2px solid white;
+}
+
+#times h3 {
+    /* Override the heading colour set in general styles */
+    color: #fafafa;
+}
+
+/* Gallery page */
+#photos img {
+    width: 100%;
+    line-height: 1em;
+}
+
+#photos {
+    line-height: 0;
 }
 
 /* Form */
@@ -286,7 +310,12 @@ main {
         margin-top: 79px;
     }
 
-    
+    /* Hero */
+    #cover-text {
+        width: 300px;
+        right: 50px;
+    }
+
     /* Reasons section */
     #benefits-physical,
     #benefits-mental {
@@ -305,7 +334,11 @@ main {
         align-self: flex-end;
     }
 
-    
+    /* Gallery */
+    #photos {
+        column-count: 3;
+    }
+
     /* Form */
     #signup {
         background-position: center;
@@ -335,6 +368,10 @@ main {
         border-bottom: 1px solid #3a3a3a;
     }
 
+    /* Gallery */
+    #photos {
+        column-count: 4;
+    }
 }
 
 @media screen and (min-width: 1200px) {    
@@ -364,68 +401,3 @@ main {
         align-self: flex-end;
     }
 }
-</style>
-
-<body>
-<main> 
-<h2>Welcome, {{user.username}}!</h2>
-<p>You are logged into Badminton Game Analysis System {{ user.username }}!</p>
-{% comment %} <p><a href="{% url 'bgas' %}">Game Analysis System</a></p> {% endcomment %}
-<section id="reasons">
-          <h2>Why Use This?</h2>
-        <div id="benefits">
-          <div id="benefits-physical">
-            <div>
-              <h3>Visualise & Record Badminton match data </h3>
-              <hr />
-              <p>
-                Track player and shuttlecock positions during points.
-              </p>
-            </div>
-            <div>
-              <h3>Analyse Movement Patterns</h3>
-              <hr />
-              <p>Identify trends and potential improvements</p>
-            </div>
-          </div>
-          <div id="benefits-mental">
-            <div>
-              <h3>Playback recorded points </h3>
-              <hr />
-              <p>
-                Review match footage in a simplified, graphical format.
-              </p>
-            </div>
-            <div>
-              <h3>Export / Save Game Data</h3>
-              <hr />
-              <p>
-                Can save the game and review / play back, share it for further analysis
-              </p>
-            </div>
-          </div>
-          <div id="benefits-image">
-            <div id="circle-cover-bg"></div>
-          </div>
-        </div>
-      </section>
-
-<p><a href="{% url 'password_change' %}">Password Change</a></p>
-<form action="{% url 'logout' %}" method="post">
-  {% comment %} Logout form is created i) sends a POST request to Django logout view {% endcomment %}
-  {% csrf_token %}
-  {% comment %} prevents Cross-site request fogery attacks {% endcomment %}
-  <button type="submit">Log Out</button>
-</form>
-{% comment %} If user is not logged in, message display {% endcomment %}
-{% else %}
-<p>You are not logged in</p>
-<p><a href="{% url 'password_reset' %}">Password Reset</a></p>
-<p><a href="{% url 'login' %}">Log In</a></p>
-{% endif %}
-</div>
-</main>
-
-</body>
-
-{% endblock %}
