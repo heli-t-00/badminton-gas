@@ -1,0 +1,41 @@
+{% extends "base.html" %} 
+{% comment %} this template inherits from base.html, base.html is the parent template, and this file adds / modifies sections of it {% endcomment %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% comment %} page specific content will be inserted {% endcomment %}
+<div class="container">
+{% if user.is_authenticated %}
+{% comment %} this checks whether user is logged in {% endcomment %}
+
+  
+
+<body>
+    <!-- Main content -->
+    <main>
+        <section id="signup">
+            <form id="signup-form" action="{% url 'logout' %}" method="post">
+                {% comment %} Logout form is created i) sends a POST request to Django logout view {% endcomment %}
+                <h2>Manage your account, {{user.username}}!</h2>
+                <p><a href="{% url 'password_change' %}">Password Change</a></p>
+                {% csrf_token %}
+                {% comment %} prevents Cross-site request fogery attacks {% endcomment %}
+                <button type="submit" class="join-button">Logout!</button>
+            </form>
+        </section>
+
+
+    <div>
+    {% comment %} If user is not logged in, message display {% endcomment %}
+    {% else %}
+    <p>You are not logged in</p>
+    <p><a href="{% url 'password_reset' %}">Password Reset</a></p>
+    <p><a href="{% url 'login' %}">Log In</a></p>
+    {% endif %}
+    </div>
+</main>
+<footer></footer>
+</body>
+
+{% endblock %}
