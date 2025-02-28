@@ -447,7 +447,7 @@ The movement data will be collected to allow uses like ...
       console.log(`Save Game ${game.name}=${game.asJSON()}`);
       let r = null;
       if (game.id) {
-        r = await fetch(`{% url 'gas' %}${id}`, {
+        r = await fetch(`{% url 'gas' %}${game.id}`, {
           method: 'PUT',
           headers: {'Content-Type': 'application/json',},
           body: JSON.stringify(game),
@@ -700,8 +700,10 @@ The movement data will be collected to allow uses like ...
   }
   function newGame() {
     let gamename = window.prompt("Name of new game", "Wang Yihan 0-0 Cheng Shao Chieh (Olympics 2012)");
-    if (!gamename) { gamename = "Wang Yihan 0-0 Cheng Shao Chieh (Olympics 2012)"; }
-    loadGame(undefined, gamename);
+    if (gamename !== null) {
+      if (!gamename) gamename = "Wang Yihan 0-0 Cheng Shao Chieh (Olympics 2012)";
+      loadGame(undefined, gamename);
+    }
   }
 
   function loadGame(gameid, gamename) {
@@ -764,8 +766,11 @@ The movement data will be collected to allow uses like ...
     // save to web server
     console.log(`saveGame`);
     setFooter(`Game: ${game.name} saving`);
+
     webserver.saveGame(game).then(r => {
       setFooter(`Game: ${game.name} saved`);
+    }).catch(error => {
+      setFooter(`Game: ${game.name} ${error.message}`);
     });
     // Check localstorage with console.log(`${JSON.stringify(window.localStorage)}`);
   }

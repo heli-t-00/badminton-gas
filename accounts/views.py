@@ -2,9 +2,8 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from django.shortcuts import get_object_or_404
 
-from rest_framework import generics, permissions, status
+from rest_framework import permissions, status, authentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -25,36 +24,9 @@ class SignUpView(CreateView):
 # loaded when the file is imported, so we have to use the lazy form of reverse to load them later when we are sure
 # they're available.
 
-
-# class GameCreateView(generics.CreateAPIView):
-#     permission_classes = [permissions.IsAuthenticated]
-#     queryset = Game.objects.all()
-#     serializer_class = GameSerializer
-#     http_method_names = ['post']
-
-
-# class GameDetailsView(generics.RetrieveAPIView):
-#     permission_classes = [permissions.IsAuthenticated]
-#     model = Game
-#     serializer_class = GameSerializer
-#     # http_method_names = ['post']
-
-#     def get_queryset(self):
-#         # print(json.dumps(self.request))
-#         # return self.request
-#         an_id = self.kwargs.get('an_id')
-#         return Game.objects.filter(id=an_id)
-
-
-# class GameListView(generics.ListAPIView):
-#     permission_classes = [permissions.IsAuthenticated]
-#     queryset = Game.objects.all()
-#     serializer_class = GameNameSerializer
-#     http_method_names = ['get']
-
-
 class GameApiView(APIView):
     # check if user is authenticated
+    authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     # 1. List all
@@ -62,7 +34,7 @@ class GameApiView(APIView):
         """
         List all the games for given requested user
         """
-        games = Game.objects.filter(user=request.user.id)
+        games = Game.objects  #.filter(user=request.user.id)  # All users can see all games
         serializer = GameNameSerializer(games, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -81,14 +53,15 @@ class GameApiView(APIView):
 
 class GameDetailApiView(APIView):
     # check if user is authenticated
+    authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self, game_id, user_id):
+    def get_object(self, game_id):  #, user_id):
         '''
         Helper method to get the Game with given game_id, and user_id
         '''
         try:
-            return Game.objects.get(id=game_id, user = user_id)
+            return Game.objects.get(id=game_id)  #, user = user_id)
         except Game.DoesNotExist:
             return None
 
@@ -97,7 +70,7 @@ class GameDetailApiView(APIView):
         '''
         Retrieves the game with given game_id
         '''
-        game_instance = self.get_object(game_id, request.user.id)
+        game_instance = self.get_object(game_id)  #, request.user.id)  # All users can retrieve any game details
         if not game_instance:
             return Response(
                 {"res": "Game with game id does not exist"},
@@ -112,10 +85,16 @@ class GameDetailApiView(APIView):
         '''
         Updates the game with given game_id if exists
         '''
-        game_instance = self.get_object(game_id, request.user.id)
+        game_instance = self.get_object(game_id)  #, request.user.id)
         if not game_instance:
             return Response(
                 {"res": "Game with game id does not exist"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        # Do not allow other users to update a users game
+        if game_instance.user.id != request.user.id:
+            return Response(
+                {"res": "Game does not belong to you"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         serializer = GameSerializer(instance=game_instance, data=request.data, partial=True)
@@ -129,10 +108,16 @@ class GameDetailApiView(APIView):
         '''
         Deletes the game with given game_id if exists
         '''
-        game_instance = self.get_object(game_id, request.user.id)
+        game_instance = self.get_object(game_id)  #, request.user.id)
         if not game_instance:
             return Response(
                 {"res": "Game with game id does not exist"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        # Do not allow other users to update a users game
+        if game_instance.user.id != request.user.id:
+            return Response(
+                {"res": "Game does not belong to you"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         game_instance.delete()

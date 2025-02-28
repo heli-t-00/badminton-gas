@@ -12,7 +12,7 @@ class GameTests(APITestCase):
             """
             Ensure we can create a new game.
             """
-            url = reverse('game-list')
+            url = reverse('')
             data = {'name': 'New game'}
             response = self.client.post(url, data, format='json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
