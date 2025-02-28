@@ -15,96 +15,90 @@ Check out the deployed Badminton Game (PASTE LINK)
 # Introduction 
 
 ## Game Analysis System (GAS) Application
-I will be extending my project 2 https://github.com/heli-t-00/Project2_badmintonCourt where I’ve created an interactive badminton court. Project 3 will be a Game Analysis System (GAS) Application to analyse and evaluate a game, by collecting, storing, processing relevant game data. This can therefore provide an insight into performance, tactics, outcome, helping users improve their gameplay or strategy for badminton.
-Given the time constraint on this project, I will create a Minimal Viable Product (MVP) that can record the number of shots per rally and playback the games, specify outcome of game ie. winner or loser and finally track rally sequence and playback.
+The Game Analysis System (GAS) Application is an extension of my Project 2, where I created an interactive badminton court. Project 3 builds upon this by introducing a system that analyses and evaluates a game, collecting and processing relevant game data to provide insights into performance, tactics, and outcomes. This will enable users to improve their gameplay and strategy.
 
-For future improvements, the application will record the number of shots and specify the type of shots (ie. smash, drop, clears, nets), specify type of outcomes (ie. unforced error, forced error). 
+Due to time constraints, I am developing a Minimal Viable Product (MVP) that will:
+- Record the number of shots per rally
+- Playback recorded games
+- Specify the outcome of the game (winner or loser)
+Track rally sequences and replay them
+
+https://badminton-gas-03d473823731.herokuapp.com/ 
+
+### Future Enhancements
+Future iterations will include:
+- Categorizing shots (e.g., smash, drop, clears, nets)
+- Specifying types of outcomes (e.g., unforced errors, forced errors)
+- Advanced statistical analysis and visualization of player performance
 
 ## Data Storage
-I’ve used the Entity Relationship Diagram to give a visual representation of the data in the database, which will form the basis of my database creation.
+An Entity Relationship Diagram (ERD) has been created to visually represent the database structure, forming the foundation for data management.
 <img src="assets\images\ERD_P3.PNG" alt="Entity Relationship Diagram">
 
 
-## Potential Challenges
+## Challenges & Learning Curve
 ###### [Back to the top](#table-of-contents)
 As I am in the process of upskilling, the challenges I will face is as follow:
 - Backend learning curve: Frameworks - Python / Django I may need extra time to understand the basics
 - Debugging & testing: Integrating frontend and backend, handling database queries and testing on Heroku could take longer than expected if issues arise
 - Unfamiliar tasks: authentication and database is new to me, therefore trying to achieve this in a short space of time can be difficult.
     
-## Main Technologies:
-- **Frontend:** HTML, CSS, JavaScript 
-- **Backend:**  Python with Django.
-- **Database:** SQLite.
-- **Deployment:** Host on Heroku.
-
-The tech stack I plan to use are:
-**HTML** this will provide the content for user interface and structure for login/ registration pages, game input forms (game names, points and shots) and replay interface.
-
-**CSS and Bootstrap** will be used to style the application and user experience, taking into consideration responsiveness.
-
-**JavaScript** will be used for the interactivity, dynamic game replay animations, form validation and submission, fetching and displaying data.
-
-The front end will contribute to the user interface and experience as follows:
-HTML & CSS – provides a visually appealing accessible structure for users. Utilising bootstrap will allow design process to be faster.
-
-JavaScript – this will add dynamic elements enabling a smooth user experience.
+## Tech Stack:
+- **Frontend:** 
+    HTML: Structure for UI, login/registration pages, game input forms, and replay interface
+    CSS & Bootstrap: Styling and responsiveness
+    JavaScript: Interactivity, game replay animations, form validation, and data handling
+- **Backend:**  Python & Django - Application logic and database management
+- **Database:** PostgreSQL - Database management and storage and retrieval.
+- **Deployment:** HerokuL: Hosting and deployment
 
 
 # Desired Outcome
 ###### [Back to the top](#table-of-contents)
 
 ## Core components of MVC
-Model (Data level)
-Storing the data at Model level:
-User – store login information, user specific game details
-Game – store game information (name, points, shot details)
-Replay – store sequences of shots and playback
+The project follows the Model-View-Controller (MVC) framework:
 
-View (Frontend / UI)
-Login and Registration – allows the user to register and login to their data (game)
-Game input – a form to input name, points, shot details
-Game replay – a visual representation of game sequences
+- Model (Data Layer): Stores user login details, game information, and replay sequences
 
-Controller (Backend/Logic)
-User Authentication – login and register user
-Game data handling – save game details and shots into database
-Replay functionality – fetch and playback game sequences
+- View (Frontend/UI): User-friendly interfaces for login, game input, and replay functionality
+
+- Controller (Backend/Logic): Handles authentication, game data storage, and replay functionality
 
 <img src="/assets/images/MVC_P3.PNG", alt="MVC for Project 3>
 
 
 This project intends to satisfy the following Learning Objectives:
 
-- LO1: Use an Agile methodology to plan and design a Full-Stack Web application using an MVC framework and related contemporary technologies.
-- LO2: Implement a data model, application features and business logic to manage, query and manipulate data to meet given needs in a particular real-world domain.
-- LO3: Identify and apply authorisation, authentication and permission features in a Full-Stack web application solution
-- LO4: Create manual and/or automated tests for a Full-Stack Web application using an MVC framework and related contemporary technologies
-- LO5: Use a distributed version control system and a repository hosting service to document, develop and maintain a Full-Stack Web application using an MVC framework and related contemporary technologies.
-- LO6: Deploy a Full-Stack Web application using an MVC framework and related contemporary technologies to a cloud-based platform.
-- LO7: Understand and use object-based software concepts.
+- LO1: Plan and design a full-stack application using an Agile methodology
+- LO2: Implement a data model, features, and business logic
+- LO3: Apply authentication and authorization features
+- LO4: Create manual and/or automated tests
+- LO5: Use GitHub for version control and documentation
+- LO6: Deploy the application on a cloud platform.
+- LO7: Utilise object-oriented programming concepts
 
 ###### [Back to the top](#table-of-contents)
 # Proposed Features
 I have used EPIC to define this project's high-level goal and or objectives on this project 3. 
 
-## User Stories Implementation
-### User Story - As a badminton enthusiast:
-- "I want to have an interactive platform that helps me to improve my gameplay so that I can enhance my skills and knowledge on a real court"
+## User Stories
+### As a badminton enthusiast:
+- "I want an interactive platform to improve my gameplay so I can enhance my skills and knowledge."
 
 ### Frontend Interaction
-- As a user... "I want to see a responsive badminton court on the screen, so that I can visualise different court position and strategies"
+- "I want to see a responsive badminton court to visualise different positions and strategies."
 
 ### User Progress Tracking
-- As a user... "I want to save my learning progress, so I can pick up where I left off when I return."
+- "I want to save my progress so I can continue where I left off."
 
 
 ### Backend Integration
-- As a user... "I want to create an account and login in securely, so I can save my game analysis learning experience"
-- As a user... "I want the app to save my games and shots, so that I can playback the sequence to analyse a game"
+- "I want to create an account and log in securely to save my analysis."
+- "I want the app to save my games and shots, so I can replay and analyse them."
 
 ### Deployment
-- As an administrator... I want the app to be deployed online and accessible on different devices, so that users can access it from anywhere"
+- "I want the app to be accessible online and on multiple devices."
 
 # WireFrame - CHECK THIS
 ###### [Back to the top](#table-of-contents)
@@ -115,18 +109,26 @@ I have used EPIC to define this project's high-level goal and or objectives on t
 Given the aggresive deadline, I will focus on the Minimal Viable Product (MPV) approach.
 For an MVP, I will ensure core functionality works without worrying about advanced features or intricate design. Here's the breakdown of essential features, that project 3 will focus on:
 
-### MVP for Game Analysis System (GAS) Application
-1. **Frontend Features**
-    -
-2. **Backend Features**
-   
-3. **Deployment**
-    - Basic Deployment: Deploy the application to a cloud platform (e.g., Heroku or Vercel). Make sure the app works on both desktop and mobile browsers.
-4. **Testing & Validation**
-    - Manual Testing: Focus on manual testing of core features like user registration, court interactivity, and progress tracking.
--   - Basic Automated Testing: Implement a few unit tests for core functionalities, like user registration.
+### MVP Features
+### Frontend Features:
+- User authentication (login/registration)
+- Input forms for game names, points, and shots
+- Visual replay of recorded games
+
+### Backend Features:
+- Secure storage of user and game data
+- Replay functionality for game sequences
+
+### Deployment:
+- Heroku (or an alternative cloud platform)
+
+**Testing & Validation**
+- Manual Testing: Core features- registration, court interactivity, progress tracking
+- Automated Testing: Basic unit tests for key functionalities
+- Browser Compatibility: Tested on Chrome, Firefox, Edge, Vivaldi, Brave, and Tor Browser
+- Accessibility & Performance: Lighthouse Audit: Measures accessibility, SEO, and best practices. W3C Validators: Ensures HTML, CSS, and JavaScript meet coding standards
+
 **Key Priorities**
-- 
 - Ensure backend systems (like authentication and data storage) are working, but don't worry about advanced features or perfect security for now.
 
 ---------------------------------------------------------------------------------------------------------
@@ -164,20 +166,27 @@ For JavaScript I installed SonarQube for IDE to check and validate the javascrip
 
 # Deployment
 ###### [Back to the top](#table-of-contents)
-The site was deployed to GitHub pages. 
-The steps to deploy are as follows:
-In the GitHub repository, navigate to the Settings tab
-From the source section drop-down menu, select the Master Branch
-Once the master branch has been selected, the page will be automatically refreshed with a detailed ribbon display to indicate the successful deployment.
+The Game Analysis System (GAS) Application is deployed on Heroku.
 
-I have used GitHub to deploy the website. [Live Link]()
-Visual Studio Code editor from Microsoft to write the codes and linked to GitHub for deployment. 
-Deploy the web application to a cloud platform for public access via [github](https://github.com/heli-t-00/Project2_badmintonCourt)
-Maximised future maintainability through clear documentation (this readme file) and organised code structure, the three tech stack used, html, css and javascript has their own files and each has clear comments to allow future maintainability.
+## Deployment Steps:
+- Ensured all dependencies are listed in requirements.txt.
+- Use Procfile to specify the app's entry point.
+- Configure environment variables in Heroku.
+- Use PostgreSQL as the production database.
+
+Deploy using Heroku Git:
+- git add .
+- git commit -m "Deploy to Heroku"
+- git push heroku main
+
+Verify deployment by accessing the Heroku live link.
+Live Application: Game Analysis System on Heroku ([https://badminton-gas-03d473823731.herokuapp.com/](Link to Project 3 deployed))
 
 # Future Improvements
 Here are future feature ideas to further improvements on this project:
-
+- Enhanced shot categorisation (smash, drop, clears, etc.)
+- Performance analytics (player statistics), dashboard - view at a glance
+- AI-driven game strategy suggestions
 
 
 # Credits
