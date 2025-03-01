@@ -476,7 +476,7 @@ The movement data will be collected to allow uses like ...
         if (game.id) {
           r = await fetch(`{% url 'gas' %}${game.id}`, {
             method: "PUT",
-            headers: { 
+            headers: {
               "Content-Type": "application/json",
               "X-CSRFToken": csrftoken,
             },
