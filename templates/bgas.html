@@ -476,7 +476,10 @@ The movement data will be collected to allow uses like ...
         if (game.id) {
           r = await fetch(`{% url 'gas' %}${game.id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
             body: JSON.stringify(game),
           });
         } else {
@@ -812,6 +815,7 @@ The movement data will be collected to allow uses like ...
         .saveGame(game)
         .then((r) => {
           setFooter(`Game: ${game.name} saved`);
+          showMainMenu();
         })
         .catch((error) => {
           setFooter(`Game: ${game.name} ${error.message}`);
