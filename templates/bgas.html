@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<!-- Game Analysis System
+  <!-- Game Analysis System
 
 A touch screen or mouse driven two dimensional aid to analyse badminton games
 The movement data will be collected to allow uses like ...
@@ -11,1229 +10,1813 @@ The movement data will be collected to allow uses like ...
   mistakes or forced error patterns
 -->
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Badminton Game Analysis System</title>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Badminton Game Analysis System</title>
+  </head>
 
-{% block content %}
-{% if user.is_authenticated %}
-<!-- Styles -->
-<style>
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-    background-color: black;
-    overflow: hidden;
-  }
-
-  /* Place borders round all elements to show their area */
-  /* div { border: 1px dotted red; } */
-  /* svg { border: 1px dotted yellow; } */
-
-  .fullPage {
-    display: flex;
-    flex-flow: column;
-    height: 100%;
-  }
-
-  .header {
-    display: none;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: flex-start;
-    /* We want the buttons to slide horizontally at the top if they go off the screen */
-    overflow-x: scroll;
-    /* They should remain fixed vertically */
-    overflow-y: hidden;
-    padding: 1px;
-    /* We have to remove the scroll bars differently for each browser type */
-    /* For Firefox */
-    scrollbar-width: none;
-    /* For Edge */
-    -ms-overflow-style: none;
-  }
-
-  /* For Chrome */
-  .header::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-
-  /* The middle, auto sized content used to fill the court with */
-  .content {
-    display: flex;
-    flex: 1 1 auto;
-    overflow: hidden;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* A fixed footer at the bottom to show status details */
-  .footer {
-    flex: 0 0 30px;
-    color: white;
-    font-size: small;
-  }
-
-  /* Button, select styles for the menu */
-  button,
-  select,
-  input {
-    background-color: blue;
-    border: 1px outset lightskyblue;
-    border-radius: 5px;
-    color: white;
-    opacity: 100%;
-    height: 37px;
-    margin-left: 1px;
-  }
-
-  input {
-    height: 33px;
-  }
-
-
-  ::-moz-selection {
-    background: green;
-  }
-
-  ::selection {
-    background: green;
-  }
-
-  .captioned {
-    position: relative;
-  }
-
-  .captioned label {
-    position: absolute;
-    padding-left: 5px;
-    font-size: x-small;
-    color: lightblue;
-  }
-
-  .btn {
-    width: 30px;
-    height: 30px;
-  }
-
-  #gameselect {
-    font-size: x-small;
-  }
-
-  button:active {
-    background-color: black;
-    border: 1px inset blue;
-    opacity: 20%;
-  }
-
-  button:hover {
-    opacity: 60%;
-  }
-
-  /* Draggable elements with cursor to make user aware it is draggable */
-  .draggable {
-    position: absolute;
-    cursor: move;
-    /* Put players above court and net but below shuttle */
-    z-index: 2;
-  }
-
-  /* Draggable server initial position */
-  .server {
-    left: 30%;
-    top: 45%;
-  }
-
-  /* Draggable receiver initial position */
-  .receiver {
-    left: 60%;
-    top: 37%;
-  }
-
-  /* Draggable shuttle initial position */
-  .shuttle {
-    left: 48%;
-    top: 48%;
-    /* On top */
-    z-index: 3;
-  }
-
-  /* zoomed rotated SVG for the server */
-  #serverimage {
-    zoom: 70%;
-    transform: rotate(270deg) translate(0%, 0%);
-    -ms-transform: rotate(270deg) translate(0%, 0%);
-    -webkit-transform: rotate(270deg) translate(0%, 0%);
-  }
-
-  /* zoomed rotated SVG for the receiver */
-  #receiverimage {
-    zoom: 70%;
-    transform: rotate(130deg) translate(0%, 0%);
-    -ms-transform: rotate(130deg) translate(0%, 0%);
-    -webkit-transform: rotate(130deg) translate(0%, 0%);
-  }
-
-  /* zoomed rotated SVG for the shuttle */
-  #shuttleimage {
-    zoom: 50%;
-    transform: rotate(270deg) translate(0%, 0%);
-    -ms-transform: rotate(270deg) translate(0%, 0%);
-    -webkit-transform: rotate(270deg) translate(0%, 0%);
-  }
-
-  /* The court grid animated to fade in using opacity */
-  .court {
-    display: grid;
-    grid-template-rows: 4px 72px 4px 388px 4px 198px 1px 198px 4px 388px 4px 72px 4px;
-    grid-template-columns: 4px 42px 4px 253px 4px 253px 4px 42px 4px;
-    opacity: 10%;
-    background: blue;
-  }
-
-  /* A rotated court */
-  /* This works by adding rotated to the classlist in order to rotate by 90 degrees */
-  .rotated {
-    transform: rotate(90deg) translate(0%, 0%);
-    -ms-transform: rotate(90deg) translate(0%, 0%);
-    -webkit-transform: rotate(90deg) translate(0%, 0%);
-  }
-
-  /* Court elements line, net and area */
-  /* The lines on the court are white */
-  .line {
-    background-color: white;
-    cursor: crosshair;
-  }
-
-  /* The net is a different area from the court and should be on top*/
-  .net {
-    border: thin solid white;
-    /* show above the lines and areas */
-    z-index: 1;
-  }
-
-  /* The areas of the court are blue */
-  .area {
-    background: blue;
-    cursor: crosshair;
-  }
-</style>
-
-<script>
-  "use strict";
-  //Variables to prevent having to get elements every time as it is costly
-  let content = null;
-  let court = null;
-  let zoomed = null;
-
-  let gameselect = null;
-  let pointselect = null;
-  let editpointselect = null;
-  let shotselect = null;
-  let editshotselect = null;
-
-  let receiver = null;
-  let server = null;
-  let receiverimage = null;
-  let serverimage = null;
-  let shuttle = null;
-
-  //Store positions/settings to allow restore if screen is rotated or resized
-  let oldPos = null;
-  let rotated = false;
-  let zoom = 100;
-
-  //Current game, point and shot to allow editing or playback
-  let game = null;
-  let editpoint = null;
-  let editshot = null;
-
-  // the item being dragged
-  let drag = null;
-  // offset from top left corner of the element for cursor/touch exact positioning
-  let delta = {};
-
-  //The web server to load/save/login
-  let webserver = null;
-
-  //Helper functions to get elements
-  function getById(id) {
-    return document.getElementById(id);
-  }
-  function getByClass(classname) {
-    return document.getElementsByClassName(classname)[0];
-  }
-
-  // In DB terms we store a Game with many points each having many shots
-  // Games = Id UserId Name
-  // Points = GameId Id Total TeamA
-  // Shots = PointId Id A1x A1y B1x B1y Sx Sy
-
-  //All positions are 0,0 = center of court in a vertical format at 100% zoom
-  class BadShot {
-    //Store values at 100% zoom
-    constructor(a1x, a1y, b1x, b1y, sx, sy, z = 100) {
-      this.a1x = a1x * 100 / z; // A1 x position
-      this.a1y = a1y * 100 / z; // A1 y position
-      this.b1x = b1x * 100 / z; // B1 x position
-      this.b1y = b1y * 100 / z; // B1 y position
-      this.sx = sx * 100 / z; // Shuttle x position
-      this.sy = sy * 100 / z; // Shuttle y position
-    };
-    // Return values at a specific zoom
-    atZoom(z) {
-      return new BadShot(
-        this.a1x * z / 100, // A1 x position
-        this.a1y * z / 100, // A1 y position
-        this.b1x * z / 100, // B1 x position
-        this.b1y * z / 100, // B1 y position
-        this.sx * z / 100, // Shuttle x position
-        this.sy * z / 100, // Shuttle y position
-      );
-    }
-    toCurrent() {
-      // console.log(`toCurrent`)
-      let bs = this.atZoom(zoom);
-      // console.log(`A1=${bs.a1x},${bs.a1y}  B1=${bs.b1x},${bs.b1y}  S=${bs.sx},${bs.sy}`);
-      let cr = content.getBoundingClientRect();
-      let crx = cr.left + cr.width / 2;
-      let cry = cr.top + cr.height / 2;
-      let a1r = server.getBoundingClientRect();
-      server.style.left = (rotated ? bs.a1y : bs.a1x) + crx - a1r.width / 2 + "px";
-      server.style.top = (rotated ? -bs.a1x : bs.a1y) + cry - a1r.height / 2 + "px";
-      let b1r = receiver.getBoundingClientRect();
-      receiver.style.left = (rotated ? bs.b1y : bs.b1x) + crx - b1r.width / 2 + "px";
-      receiver.style.top = (rotated ? -bs.b1x : bs.b1y) + cry - b1r.height / 2 + "px";
-      let sr = shuttle.getBoundingClientRect();
-      shuttle.style.left = (rotated ? bs.sy : bs.sx) + crx - sr.width / 2 + "px";
-      shuttle.style.top = (rotated ? -bs.sx : bs.sy) + cry - sr.height / 2 + "px";
-      // console.log(`Restored`)
-    }
-    fromCurrent() {
-      let p = BadShot.fromCurrent();
-      this.a1x = p.a1x; // A1 x position
-      this.a1y = p.a1y; // A1 y position
-      this.b1x = p.b1x; // B1 x position
-      this.b1y = p.b1y; // B1 y position
-      this.sx = p.sx; // Shuttle x position
-      this.sy = p.sy; // Shuttle y position
-    }
-    static fromCurrent() {
-      console.log(`fromCurrent`)
-      let cr = content.getBoundingClientRect();
-      let crx = cr.left + cr.width / 2;
-      let cry = cr.top + cr.height / 2;
-
-      let a1r = server.getBoundingClientRect();
-      let a1x = (a1r.left + a1r.width / 2) - crx;
-      let a1y = (a1r.top + a1r.height / 2) - cry;
-
-      let b1r = receiver.getBoundingClientRect();
-      let b1x = (b1r.left + b1r.width / 2) - crx;
-      let b1y = (b1r.top + b1r.height / 2) - cry;
-
-      let sr = shuttle.getBoundingClientRect();
-      let sx = (sr.left + sr.width / 2) - crx;
-      let sy = (sr.top + sr.height / 2) - cry;
-
-      // console.log(`A1=${JSON.stringify(a1r)}  B1=${JSON.stringify(b1r)}  S=${JSON.stringify(sr)}  C=${JSON.stringify(cr)}  Z=${zoom}`);
-
-      if (rotated) {
-        return new BadShot(-a1y, a1x, -b1y, b1x, -sy, sx, zoom);
-      } else {
-        return new BadShot(a1x, a1y, b1x, b1y, sx, sy, zoom);
-      }
-    }
-  }
-  class BadPoint {
-    constructor(tp, ap) {
-      this.total = tp; //teamA + teamB points or point index 0..57(max)
-      this.team_a = ap; //teamA points 0..29(max)
-      this.shots = []; // list of shots (all positions for each shot)
-    };
-  }
-  class BadGame {
-    constructor(items) {
-      this.id = null;
-      this.name = '';
-      this.user = "{{UserId}}";
-      this.created_date = null;
-      this.players = [];
-      this.players.push(...items); // 2 (or 4 players eventually)
-      this.points = []; // list of points
-    };
-    addPoint(t, ta, shot) {
-      let np = new BadPoint(t, ta);
-      np.shots.push(shot);
-      this.points.push(np);
-    }
-    isSingles() { return this.players.length == 2; };
-    asJSON() {
-      return JSON.stringify(
-        this
-        //,
-        //function (k, v) { 
-          //return v.toFixed ? Number(v.toFixed(3)) : v; 
-        //}
-      );
-    };
-    fromJSON(j) {
-      console.log(`fromJSON ${JSON.stringify(j)}`);
-      let ps = j;  //JSON.parse(j);
-      this.id = ps.id;
-      this.name = ps.name;
-      this.user = ps.user;
-      this.created_date = ps.created_date;
-      console.log(`fromJSON ${this.name}`);
-      let nps = [];
-      [].forEach.call(ps.points, function (p) {
-        console.log(`Point ${p.total}-${p.team_a}`);
-        let np = new BadPoint(p.total, p.team_a);
-        [].forEach.call(p.shots, function (s) {
-          console.log(`Shot ${JSON.stringify(s)}`);
-          let ns = new BadShot(s.a1x, s.a1y, s.b1x, s.b1y, s.sx, s.sy);
-          np.shots.push(ns);
-        });
-        nps.push(np);
-      });
-      this.points = [...nps];
-      //console.log(`${this.name}=${this.asJSON()}`);
-    }
-  }
-
-  // Local Storage Server to use as WebServer
-  class LocalServer {
-    loadGameNames() {
-      let ks = Object.keys(window.localStorage).filter(function (k) { return k.startsWith("BGAS."); });
-      return ks.map((k) => k.replace("BGAS.", ""));
-    };
-    loadGame(name) {
-      window.localStorage.getItem('BGAS.' + name);
-    };
-    saveGame(gamename, gamejson) {
-      window.localStorage.setItem('BGAS.' + gamename, gamejson);
-    }
-  }
-  // Web Server to load/save game details
-  class BadWebServer {
-    constructor() {
-      let un = "{{user.username}}"; //Gets username logged in as
-      console.log(`User Name=${un}`);
-    };
-    async loadGameNames() {
-      const r = await fetch("{% url 'gas' %}");
-      if (!r.ok) {
-        throw new Error(`Cannot get list of games: ${r.status}`);
-      }
-      const ns = await r.json();
-      console.log(`Games=${JSON.stringify(ns)}`);
-      return ns;
-    };
-    async loadGame(id) {
-      const r = await fetch(`{% url 'gas' %}${id}?format=json`);
-      if (!r.ok) {
-        throw new Error(`Cannot get game details: ${r.status}`);
-      }
-      const ns = await r.json();
-      console.log(`Game details=${JSON.stringify(ns)}`);
-      return ns;
-    };
-    async saveGame(game) {
-      console.log(`Save Game ${game.name}=${game.asJSON()}`);
-      let r = null;
-      if (game.id) {
-        r = await fetch(`{% url 'gas' %}${game.id}`, {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json',},
-          body: JSON.stringify(game),
-        });
-      } else {
-        r = await fetch(`{% url 'gas' %}`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json',},
-          body: JSON.stringify(game),
-        });
-      }
-      if (!r.ok) {
-        throw new Error(`Cannot save game details: ${r.status}`);
-      }
-      const ns = await r.json();
-      return ns;
-    }
-  }
-
-  // When the page loads we initialise everything
-  window.onload = function () {
-    // Using localstorage as a webserver for now
-    webserver = new BadWebServer(new LocalServer());
-
-    console.log(`Find elements`);
-    gameselect = getById('gameselect');
-    pointselect = getById('pointselect');
-    editpointselect = getById('editpointselect');
-    shotselect = getById('shotselect');
-    editshotselect = getById('editshotselect');
-
-    court = getByClass("court");
-    content = getByClass("content");
-    zoomed = getByClass("zoomed");
-
-    receiverimage = getById("receiverimage");
-    serverimage = getById("serverimage");
-    receiver = getByClass("receiver");
-    server = getByClass("server");
-    shuttle = getByClass("shuttle");
-
-    console.log(`Show court`);
-    court.style.opacity = "100%";
-    court.style.transition = "opacity 5s";
-
-    // Default start positions
-    oldPos = new BadShot(-43.9, -257.8, 85.4, 269.7, -6.7, -184.3);
-
-    console.log(`Setup game`);
-    game = new BadGame([server, receiver]);
-    game.addPoint(0, 0, BadShot.fromCurrent());
-
-    [].forEach.call(game.players.concat(shuttle), function (draggable) {
-      console.log(`Attach drag events to ${draggable.classList[1]}`);
-      // Start drag events
-      draggable.addEventListener("mousedown", evt => {
-        evt.preventDefault();
-        startdrag(draggable, evt);
-      });
-      draggable.addEventListener("touchstart", evt => {
-        evt.preventDefault();
-        startdrag(draggable, evt.targetTouches[0]);
-      });
-      draggable.addEventListener("mouseup", enddrag);
-      draggable.addEventListener('touchend', enddrag)
-      draggable.addEventListener('touchcancel', enddrag)
-    });
-
-    // Additional movement events required to allow dragging
-    content.addEventListener("mousemove", evt => {
-      evt.preventDefault();
-      movedrag(content, evt);
-    });
-    content.addEventListener("touchmove", evt => {
-      evt.preventDefault();
-      movedrag(content, evt.targetTouches[0]);
-    });
-
-    // End drag events
-    content.addEventListener("mouseup", enddrag);
-    content.addEventListener('touchend', enddrag)
-    content.addEventListener('touchcancel', enddrag)
-
-    setCourtToSingles();
-    showMainMenu();
-    fitCourt(content.clientWidth < content.clientHeight);
-    pointPlayersAtShuttle();
-  }
-
-  function setFooter(footertext) {
-    getByClass("footer").innerHTML = footertext;
-  }
-  function getPos(evt) {
-    return {
-      x: evt.clientX,
-      y: evt.clientY
-    };
-  }
-  function startdrag(item, evt) {
-    let pos = getPos(evt);
-    drag = item;
-    let rect = item.getBoundingClientRect();
-    delta.x = pos.x - rect.x;
-    delta.y = pos.y - rect.y;
-  }
-  function movedrag(item, evt) {
-    let pos = getPos(evt);
-    if (drag) {
-      drag.style.left = pos.x - delta.x + "px";
-      drag.style.top = pos.y - delta.y + "px";
-      pointPlayersAtShuttle()
-    }
-  }
-  function enddrag(evt) {
-    if (drag) {
-      evt.preventDefault();
-      drag = null;
-      oldPos = BadShot.fromCurrent(); //Update stored current positions
-      if (editshot) {
-        editshot.fromCurrent(); //Update edited shot if set
-      }
-    }
-  }
-
-  window.onresize = function (event) {
-    fitCourt(content.clientWidth < content.clientHeight);
-  };
-  function getAngleToDest(source, dest) {
-    let sr = source.getBoundingClientRect();
-    let dr = dest.getBoundingClientRect();
-
-    // Get new position from 0,0
-    // Use center of each item (left + width / 2)
-    let x = (dr.left + dr.width / 2) - (sr.left + sr.width / 2);
-    let y = (dr.top + dr.height / 2) - (sr.top + sr.height / 2);
-    return getAngleInDegrees(x, y);
-  }
-  function getAngleInDegrees(x, y) {
-    // Get angle to new position from 0,0
-    let angle = Math.round(Math.atan2(y, x) * (180 / Math.PI));
-    return (angle < 0) ? angle + 360 : angle;
-  }
-  function pointPlayersAtShuttle() {
-    let angle = getAngleToDest(receiver, shuttle);
-    receiverimage.style.transform = `rotate(${angle + 330}deg) translate(0%, 0%)`;
-    angle = getAngleToDest(server, shuttle);
-    serverimage.style.transform = `rotate(${angle + 300}deg) translate(0%, 0%)`;
-  }
-
-  function rotateCourt() {
-    oldPos = BadShot.fromCurrent();
-    fitCourt();
-  }
-  function fitCourt(vertical = null) {
-    rotated = zoomed.classList.contains("rotated");
-    let remove_class = rotated && vertical !== false;
-    let add_class = !rotated && vertical !== true;
-    let prect = content.getBoundingClientRect();
-    if (remove_class) {
-      zoomed.classList.remove("rotated");
-      rotated = false;
-    } else if (add_class) {
-      zoomed.classList.add("rotated");
-      rotated = true;
+  {% block content %} {% if user.is_authenticated %}
+  <!-- Styles -->
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background-color: black;
+      overflow: hidden;
     }
 
-    let zheight = (((rotated ? prect.width : prect.height) - 12) / court.clientHeight) * 100;
-    let zwidth = (((rotated ? prect.height : prect.width) - 12) / court.clientWidth) * 100;
-    zoom = Math.min(zheight, zwidth); //Set current zoom
-    console.log(`Zoom=${zoom}`);
-    zoomed.style.zoom = `${zoom}%`;
-    serverimage.style.zoom = `${zoom * 0.7}%`;
-    receiverimage.style.zoom = `${zoom * 0.7}%`;
-    shuttleimage.style.zoom = `${zoom * 0.5}%`;
+    /* Place borders round all elements to show their area */
+    /* div { border: 1px dotted red; } */
+    /* svg { border: 1px dotted yellow; } */
 
-    //Apply relative positions at new zoom
-    oldPos.toCurrent();
-    pointPlayersAtShuttle();
-
-    console.log(`zoom=${zoomed.style.zoom} rotated=${rotated}`);
-  }
-
-  function delay(time) { return new Promise(resolve => setTimeout(resolve, time)); }
-  function setCourtToSingles() {
-    let col = 'black';
-    Array.prototype.slice.call(document.getElementsByClassName("area")).forEach(
-      de => {
-        if (de.id.includes('2'))
-          de.style.background = col;
-      }
-    );
-  }
-
-  function getOptions(defval, vals, d = true) {
-    let options = '';
-    if (d) {
-      options += `<option value="0" hidden selected>${defval}</option>`;
+    .fullPage {
+      display: flex;
+      flex-flow: column;
+      height: 100%;
     }
-    vals.forEach((v, i, a) => {
-      console.log(`add option ${i}=${v}`);
-      options += `<option value="${i}">${v}</option>`;
-    });
-    return options;
-  }
-  function getGameNames(defval, vals, d = true) {
-    let options = '';
-    if (d) {
-      options += `<option value="0" hidden selected>${defval}</option>`;
+
+    .header {
+      display: none;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: flex-start;
+      /* We want the buttons to slide horizontally at the top if they go off the screen */
+      overflow-x: scroll;
+      /* They should remain fixed vertically */
+      overflow-y: hidden;
+      padding: 1px;
+      /* We have to remove the scroll bars differently for each browser type */
+      /* For Firefox */
+      scrollbar-width: none;
+      /* For Edge */
+      -ms-overflow-style: none;
     }
-    vals.forEach((v, i, a) => {
-      console.log(`add option ${v.id}=${v.name}`);
-      options += `<option value="${v.id}">${v.name}</option>`;
-    });
-    return options;
-  }
 
-  function refreshGameNames() {
-    setFooter(`Loading games`);
-    webserver.loadGameNames().then(ns => {
-      gameselect.innerHTML = getGameNames('Select Game', ns);
-      setFooter(`Select or add a new game`);
+    /* For Chrome */
+    .header::-webkit-scrollbar {
+      width: 0;
+      height: 0;
     }
-    );
-  }
-  function refreshPoints() {
-    let allpoints = [...game.points].map(o => `${o.team_a} - ${o.total - o.team_a}`);
-    pointselect.innerHTML = getOptions('0 - 0', allpoints, false);
-    selectPoint({ selectedIndex: 0 });
-  };
-  function refreshEditPoints() {
-    let allpoints = [...game.points].map(o => `${o.team_a} - ${o.total - o.team_a}`);
-    editpointselect.innerHTML = getOptions('0 - 0', allpoints, false);
-    editpointselect.value = pointselect.value;
-    selectEditPoint({ selectedIndex: pointselect.value });
-  };
-  function refreshShots() {
-    console.log(`refreshShots`);
-    console.log(`shots ${shotselect.length}`);
-    let allshots = [...editpoint.shots].map((v, i, a) => `${i + 1} of ${a.length}`);
-    console.log(`allshots ${allshots.length}`);
-    shotselect.innerHTML = getOptions('0 of 0', allshots, false);
-  };
 
-  function selectGame(item) {
-    console.log(`selectGame`);
-    let gamename = item.options[item.selectedIndex].text;
-    let gameid = item.options[item.selectedIndex].value;
-    console.log(`Game Id=${gameid}`);
-    loadGame(gameid, gamename);
-  }
-  function newGame() {
-    let gamename = window.prompt("Name of new game", "Wang Yihan 0-0 Cheng Shao Chieh (Olympics 2012)");
-    if (gamename !== null) {
-      if (!gamename) gamename = "Wang Yihan 0-0 Cheng Shao Chieh (Olympics 2012)";
-      loadGame(undefined, gamename);
+    /* The middle, auto sized content used to fill the court with */
+    .content {
+      display: flex;
+      flex: 1 1 auto;
+      overflow: hidden;
+      align-items: center;
+      justify-content: center;
     }
-  }
 
-  function loadGame(gameid, gamename) {
-    // load the game then show the game menu
-    console.log(`loadGame ${gameid},${gamename}`);
-    if (gamename) { // only if a game name has been entered
-      if (gameid) {
-        webserver.loadGame(gameid).then(loadedgame => {
-          if (loadedgame) {
-            game.name = gamename;
-            console.log(`loaded Game ${JSON.stringify(loadedgame)}`);
-            game.fromJSON(loadedgame);
-            console.log(`parsed Game ${game.name}`);
-            showGameMenu();
-          }
-          else {
-            setFooter(`Enter a valid game name`);
-          }
-        });
-      } else { // if game does not exist then create a new game
-        //game.fromJSON('[{"total":0,"team_a":0,"shots":[{"a1x":-43.8956518954918,"a1y":-257.82076075819674,"b1x":85.40115906762296,"b1y":269.68561091188525,"sx":-6.683817879098361,"sy":-184.3130763319672}]}]');
-        let un = "{{user.id}}"
-        let defgame = {"name": gamename, "user": un, "points": [{"total":0,"team_a":0,"shots":[
-          {"a1x":-39.193,"a1y":-366.424,"b1x":119.596,"b1y":401.732,"sx":-32.155,"sy":-326.43},
-          {"a1x":8.4,"a1y":-367.765,"b1x":65.97,"b1y":624.951,"sx":50.966,"sy":589.911},
-          {"a1x":-21.765,"a1y":-353.018,"b1x":24.409,"b1y":483.512,"sx":-23.441,"sy":-293.583},
-          {"a1x":-62.655,"a1y":-340.952,"b1x":-163.283,"b1y":485.523,"sx":-210.463,"sy":464.559},
-          {"a1x":-141.754,"a1y":-206.886,"b1x":-72.118,"b1y":411.116,"sx":-197.056,"sy":-146.111},
-          {"a1x":-35.171,"a1y":-276.6,"b1x":-168.646,"b1y":593.446,"sx":-218.507,"sy":549.691},
-          {"a1x":-98.182,"a1y":-413.347,"b1x":-90.887,"b1y":519.71,"sx":-183.649,"sy":-386.089},
-          {"a1x":-31.149,"a1y":-405.974,"b1x":46.53,"b1y":267.666,"sx":97.219,"sy":193.076},
-          {"a1x":106.268,"a1y":-165.325,"b1x":28.431,"b1y":335.369,"sx":155.537,"sy":-93.155},
-          {"a1x":-13.721,"a1y":-322.182,"b1x":-105.635,"b1y":616.237,"sx":-106.561,"sy":595.944},
-          {"a1x":-133.039,"a1y":-394.578,"b1x":-102.953,"b1y":561.27,"sx":-210.463,"sy":-390.111},
-          {"a1x":-34.501,"a1y":-385.864,"b1x":-68.766,"b1y":347.435,"sx":-44.221,"sy":274.856},
-          {"a1x":-21.094,"a1y":-364.413,"b1x":-30.558,"b1y":341.402,"sx":-58.968,"sy":-333.133},
-          {"a1x":11.752,"a1y":-335.589,"b1x":27.761,"b1y":342.743,"sx":54.988,"sy":276.867},
-          {"a1x":-13.721,"a1y":-340.952,"b1x":27.091,"b1y":352.798,"sx":-42.21,"sy":-304.979},
-          {"a1x":-35.171,"a1y":-360.391,"b1x":-81.503,"b1y":415.138,"sx":-138.737,"sy":401.548},
-          {"a1x":-117.622,"a1y":-190.798,"b1x":-63.404,"b1y":379.611,"sx":-180.968,"sy":-104.55}
-          ]},
-          {"total":1,"team_a":0,"shots":[
-          {"a1x":114.982,"a1y":-363.073,"b1x":-15.81,"b1y":353.468,"sx":-15.397,"sy":307.702},
-          {"a1x":64.037,"a1y":-277.27,"b1x":22.398,"b1y":370.897,"sx":57.669,"sy":-212.474},
-          {"a1x":41.917,"a1y":-240.402,"b1x":80.717,"b1y":259.622,"sx":115.988,"sy":-14.056}
-          ]},
-          {"total":2,"team_a":0,"shots":[
-          {"a1x":-74.05,"a1y":-332.237,"b1x":77.365,"b1y":382.292,"sx":72.417,"sy":308.373}
-          ]}]
-          };
-        game.fromJSON(defgame);
-        game.id = undefined;
-        showGameMenu();
-      }
-    } else {
-      setFooter(`Select or add a new game`);
+    /* A fixed footer at the bottom to show status details */
+    .footer {
+      flex: 0 0 30px;
+      color: white;
+      font-size: small;
     }
-  }
-  function saveGame() {
-    // save to web server
-    console.log(`saveGame`);
-    setFooter(`Game: ${game.name} saving`);
 
-    webserver.saveGame(game).then(r => {
-      setFooter(`Game: ${game.name} saved`);
-    }).catch(error => {
-      setFooter(`Game: ${game.name} ${error.message}`);
-    });
-    // Check localstorage with console.log(`${JSON.stringify(window.localStorage)}`);
-  }
-
-  function showMainMenu() {
-    console.log(`showMainMenu`);
-    refreshGameNames();
-    getByClass("gamemenu").style.display = "none";
-    getByClass("editmenu").style.display = "none";
-    // getByClass("gamemenu").style.display = "flex";
-    // getByClass("editmenu").style.display = "flex";
-    getByClass("mainmenu").style.display = "flex";
-  }
-  function showGameMenu() {
-    console.log(`showGameMenu`);
-    editshot = null; // No longer allow editing of positions
-    refreshPoints();
-    getByClass("mainmenu").style.display = "none";
-    getByClass("editmenu").style.display = "none";
-    getByClass("gamemenu").style.display = "flex";
-  }
-  function showEditMenu() {
-    console.log(`showEditMenu`);
-    refreshEditPoints();
-    getByClass("mainmenu").style.display = "none";
-    getByClass("gamemenu").style.display = "none";
-    getByClass("editmenu").style.display = "flex";
-  }
-
-  function selectPoint(item) {
-    console.log(`selectPoint ${JSON.stringify(item.selectedIndex)}`);
-    //Select which point to show and edit
-    editpoint = game.points[item.selectedIndex];
-    editpoint.shots[0].toCurrent();
-    pointPlayersAtShuttle();
-    setFooter(`Score ${editpoint.team_a} - ${editpoint.total - editpoint.team_a} for "${game.name}"`);
-  }
-  function playOnePoint() {
-    console.log(`playOnePoint`);
-    playNextShot(editpoint, 0);
-  }
-  function playAllPoints() {
-    console.log(`playAllPoints`);
-    playNextShot(editpoint, 0, true);
-    setFooter(`Score ${editpoint.team_a} - ${editpoint.total - editpoint.team_a} for "${game.name}"`);
-  }
-  function playNextShot(point, i, playall = false) {
-    let pt = 0.5;
-    if (i == 1) {
-      server.style.transition = `left ${pt}s, top ${pt}s`;
-      server.style.transitionTimingFunction = `linear`;
-      receiver.style.transition = `left ${pt}s, top ${pt}s`;
-      receiver.style.transitionTimingFunction = `linear`;
-      shuttle.style.transition = `left ${pt}s, top ${pt}s`;
-      shuttle.style.transitionTimingFunction = `linear`;
+    /* Button, select styles for the menu */
+    button,
+    select,
+    input {
+      background-color: blue;
+      border: 1px outset lightskyblue;
+      border-radius: 5px;
+      color: white;
+      opacity: 100%;
+      height: 37px;
+      margin-left: 1px;
     }
-    let newShot = point.shots[i];
-    /* angle of movement of shuttle to next destination */
-    let angle = getAngleInDegrees(newShot.sx - oldPos.sx, newShot.sy - oldPos.sy);
-    if (rotated) {
-      shuttle.style.transform = `rotate(${angle - 90}deg)`;
-    } else {
-      shuttle.style.transform = `rotate(${angle}deg)`;
-    }
-    newShot.toCurrent();
 
-    pointPlayersAtShuttle();
-    i = i + 1;
-    if (point.shots.length > i) {
-      delay(pt * 1000).then(() => { playNextShot(point, i, playall); });
-    } else {
-      delay(pt * 2000).then(() => {
-        server.style.transition = ``;
-        receiver.style.transition = ``;
-        shuttle.style.transition = ``;
-        //Move to next point
-        let ov = +pointselect.value;
-        if ((ov + 1) < game.points.length) {
-          pointselect.value = ov + 1;
-          selectPoint({ selectedIndex: ov + 1 });
-          if (playall) {
-            playNextShot(editpoint, 0, playall);
+    input {
+      height: 33px;
+    }
+
+    ::-moz-selection {
+      background: green;
+    }
+
+    ::selection {
+      background: green;
+    }
+
+    .captioned {
+      position: relative;
+    }
+
+    .captioned label {
+      position: absolute;
+      padding-left: 5px;
+      font-size: x-small;
+      color: lightblue;
+    }
+
+    .btn {
+      width: 30px;
+      height: 30px;
+    }
+
+    #gameselect {
+      font-size: x-small;
+    }
+
+    button:active {
+      background-color: black;
+      border: 1px inset blue;
+      opacity: 20%;
+    }
+
+    button:hover {
+      opacity: 60%;
+    }
+
+    /* Draggable elements with cursor to make user aware it is draggable */
+    .draggable {
+      position: absolute;
+      cursor: move;
+      /* Put players above court and net but below shuttle */
+      z-index: 2;
+    }
+
+    /* Draggable server initial position */
+    .server {
+      left: 30%;
+      top: 45%;
+    }
+
+    /* Draggable receiver initial position */
+    .receiver {
+      left: 60%;
+      top: 37%;
+    }
+
+    /* Draggable shuttle initial position */
+    .shuttle {
+      left: 48%;
+      top: 48%;
+      /* On top */
+      z-index: 3;
+    }
+
+    /* zoomed rotated SVG for the server */
+    #serverimage {
+      zoom: 70%;
+      transform: rotate(270deg) translate(0%, 0%);
+      -ms-transform: rotate(270deg) translate(0%, 0%);
+      -webkit-transform: rotate(270deg) translate(0%, 0%);
+    }
+
+    /* zoomed rotated SVG for the receiver */
+    #receiverimage {
+      zoom: 70%;
+      transform: rotate(130deg) translate(0%, 0%);
+      -ms-transform: rotate(130deg) translate(0%, 0%);
+      -webkit-transform: rotate(130deg) translate(0%, 0%);
+    }
+
+    /* zoomed rotated SVG for the shuttle */
+    #shuttleimage {
+      zoom: 50%;
+      transform: rotate(270deg) translate(0%, 0%);
+      -ms-transform: rotate(270deg) translate(0%, 0%);
+      -webkit-transform: rotate(270deg) translate(0%, 0%);
+    }
+
+    /* The court grid animated to fade in using opacity */
+    .court {
+      display: grid;
+      grid-template-rows: 4px 72px 4px 388px 4px 198px 1px 198px 4px 388px 4px 72px 4px;
+      grid-template-columns: 4px 42px 4px 253px 4px 253px 4px 42px 4px;
+      opacity: 10%;
+      background: blue;
+    }
+
+    /* A rotated court */
+    /* This works by adding rotated to the classlist in order to rotate by 90 degrees */
+    .rotated {
+      transform: rotate(90deg) translate(0%, 0%);
+      -ms-transform: rotate(90deg) translate(0%, 0%);
+      -webkit-transform: rotate(90deg) translate(0%, 0%);
+    }
+
+    /* Court elements line, net and area */
+    /* The lines on the court are white */
+    .line {
+      background-color: white;
+      cursor: crosshair;
+    }
+
+    /* The net is a different area from the court and should be on top*/
+    .net {
+      border: thin solid white;
+      /* show above the lines and areas */
+      z-index: 1;
+    }
+
+    /* The areas of the court are blue */
+    .area {
+      background: blue;
+      cursor: crosshair;
+    }
+  </style>
+
+  <script>
+    "use strict";
+    //Variables to prevent having to get elements every time as it is costly
+    let content = null;
+    let court = null;
+    let zoomed = null;
+
+    let gameselect = null;
+    let pointselect = null;
+    let editpointselect = null;
+    let shotselect = null;
+    let editshotselect = null;
+
+    let receiver = null;
+    let server = null;
+    let receiverimage = null;
+    let serverimage = null;
+    let shuttle = null;
+
+    //Store positions/settings to allow restore if screen is rotated or resized
+    let oldPos = null;
+    let rotated = false;
+    let zoom = 100;
+
+    //Current game, point and shot to allow editing or playback
+    let game = null;
+    let editpoint = null;
+    let editshot = null;
+
+    // the item being dragged
+    let drag = null;
+    // offset from top left corner of the element for cursor/touch exact positioning
+    let delta = {};
+
+    //The web server to load/save/login
+    let webserver = null;
+
+    //Helper functions to get elements
+    function getById(id) {
+      return document.getElementById(id);
+    }
+    function getByClass(classname) {
+      return document.getElementsByClassName(classname)[0];
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
           }
         }
       }
+      return cookieValue;
+    }
+    const csrftoken = getCookie("csrftoken");
+
+    // In DB terms we store a Game with many points each having many shots
+    // Games = Id UserId Name
+    // Points = GameId Id Total TeamA
+    // Shots = PointId Id A1x A1y B1x B1y Sx Sy
+
+    //All positions are 0,0 = center of court in a vertical format at 100% zoom
+    class BadShot {
+      //Store values at 100% zoom
+      constructor(a1x, a1y, b1x, b1y, sx, sy, z = 100) {
+        this.a1x = (a1x * 100) / z; // A1 x position
+        this.a1y = (a1y * 100) / z; // A1 y position
+        this.b1x = (b1x * 100) / z; // B1 x position
+        this.b1y = (b1y * 100) / z; // B1 y position
+        this.sx = (sx * 100) / z; // Shuttle x position
+        this.sy = (sy * 100) / z; // Shuttle y position
+      }
+      // Return values at a specific zoom
+      atZoom(z) {
+        return new BadShot(
+          (this.a1x * z) / 100, // A1 x position
+          (this.a1y * z) / 100, // A1 y position
+          (this.b1x * z) / 100, // B1 x position
+          (this.b1y * z) / 100, // B1 y position
+          (this.sx * z) / 100, // Shuttle x position
+          (this.sy * z) / 100 // Shuttle y position
+        );
+      }
+      toCurrent() {
+        // console.log(`toCurrent`)
+        let bs = this.atZoom(zoom);
+        // console.log(`A1=${bs.a1x},${bs.a1y}  B1=${bs.b1x},${bs.b1y}  S=${bs.sx},${bs.sy}`);
+        let cr = content.getBoundingClientRect();
+        let crx = cr.left + cr.width / 2;
+        let cry = cr.top + cr.height / 2;
+        let a1r = server.getBoundingClientRect();
+        server.style.left =
+          (rotated ? bs.a1y : bs.a1x) + crx - a1r.width / 2 + "px";
+        server.style.top =
+          (rotated ? -bs.a1x : bs.a1y) + cry - a1r.height / 2 + "px";
+        let b1r = receiver.getBoundingClientRect();
+        receiver.style.left =
+          (rotated ? bs.b1y : bs.b1x) + crx - b1r.width / 2 + "px";
+        receiver.style.top =
+          (rotated ? -bs.b1x : bs.b1y) + cry - b1r.height / 2 + "px";
+        let sr = shuttle.getBoundingClientRect();
+        shuttle.style.left =
+          (rotated ? bs.sy : bs.sx) + crx - sr.width / 2 + "px";
+        shuttle.style.top =
+          (rotated ? -bs.sx : bs.sy) + cry - sr.height / 2 + "px";
+        // console.log(`Restored`)
+      }
+      fromCurrent() {
+        let p = BadShot.fromCurrent();
+        this.a1x = p.a1x; // A1 x position
+        this.a1y = p.a1y; // A1 y position
+        this.b1x = p.b1x; // B1 x position
+        this.b1y = p.b1y; // B1 y position
+        this.sx = p.sx; // Shuttle x position
+        this.sy = p.sy; // Shuttle y position
+      }
+      static fromCurrent() {
+        console.log(`fromCurrent`);
+        let cr = content.getBoundingClientRect();
+        let crx = cr.left + cr.width / 2;
+        let cry = cr.top + cr.height / 2;
+
+        let a1r = server.getBoundingClientRect();
+        let a1x = a1r.left + a1r.width / 2 - crx;
+        let a1y = a1r.top + a1r.height / 2 - cry;
+
+        let b1r = receiver.getBoundingClientRect();
+        let b1x = b1r.left + b1r.width / 2 - crx;
+        let b1y = b1r.top + b1r.height / 2 - cry;
+
+        let sr = shuttle.getBoundingClientRect();
+        let sx = sr.left + sr.width / 2 - crx;
+        let sy = sr.top + sr.height / 2 - cry;
+
+        // console.log(`A1=${JSON.stringify(a1r)}  B1=${JSON.stringify(b1r)}  S=${JSON.stringify(sr)}  C=${JSON.stringify(cr)}  Z=${zoom}`);
+
+        if (rotated) {
+          return new BadShot(-a1y, a1x, -b1y, b1x, -sy, sx, zoom);
+        } else {
+          return new BadShot(a1x, a1y, b1x, b1y, sx, sy, zoom);
+        }
+      }
+    }
+    class BadPoint {
+      constructor(tp, ap) {
+        this.total = tp; //teamA + teamB points or point index 0..57(max)
+        this.team_a = ap; //teamA points 0..29(max)
+        this.shots = []; // list of shots (all positions for each shot)
+      }
+    }
+    class BadGame {
+      constructor(items) {
+        this.id = null;
+        this.name = "";
+        this.user = "{{UserId}}";
+        this.created_date = null;
+        this.players = [];
+        this.players.push(...items); // 2 (or 4 players eventually)
+        this.points = []; // list of points
+      }
+      addPoint(t, ta, shot) {
+        let np = new BadPoint(t, ta);
+        np.shots.push(shot);
+        this.points.push(np);
+      }
+      isSingles() {
+        return this.players.length == 2;
+      }
+      asJSON() {
+        return JSON.stringify(
+          this
+          //,
+          //function (k, v) {
+          //return v.toFixed ? Number(v.toFixed(3)) : v;
+          //}
+        );
+      }
+      fromJSON(j) {
+        console.log(`fromJSON ${JSON.stringify(j)}`);
+        let ps = j; //JSON.parse(j);
+        this.id = ps.id;
+        this.name = ps.name;
+        this.user = ps.user;
+        this.created_date = ps.created_date;
+        console.log(`fromJSON ${this.name}`);
+        let nps = [];
+        [].forEach.call(ps.points, function (p) {
+          console.log(`Point ${p.total}-${p.team_a}`);
+          let np = new BadPoint(p.total, p.team_a);
+          [].forEach.call(p.shots, function (s) {
+            console.log(`Shot ${JSON.stringify(s)}`);
+            let ns = new BadShot(s.a1x, s.a1y, s.b1x, s.b1y, s.sx, s.sy);
+            np.shots.push(ns);
+          });
+          nps.push(np);
+        });
+        this.points = [...nps];
+        //console.log(`${this.name}=${this.asJSON()}`);
+      }
+    }
+
+    // Local Storage Server to use as WebServer
+    class LocalServer {
+      loadGameNames() {
+        let ks = Object.keys(window.localStorage).filter(function (k) {
+          return k.startsWith("BGAS.");
+        });
+        return ks.map((k) => k.replace("BGAS.", ""));
+      }
+      loadGame(name) {
+        window.localStorage.getItem("BGAS." + name);
+      }
+      saveGame(gamename, gamejson) {
+        window.localStorage.setItem("BGAS." + gamename, gamejson);
+      }
+    }
+    // Web Server to load/save game details
+    class BadWebServer {
+      constructor() {
+        let un = "{{user.username}}"; //Gets username logged in as
+        console.log(`User Name=${un}`);
+      }
+      async loadGameNames() {
+        const r = await fetch("{% url 'gas' %}");
+        if (!r.ok) {
+          throw new Error(`Cannot get list of games: ${r.status}`);
+        }
+        const ns = await r.json();
+        console.log(`Games=${JSON.stringify(ns)}`);
+        return ns;
+      }
+      async loadGame(id) {
+        const r = await fetch(`{% url 'gas' %}${id}?format=json`);
+        if (!r.ok) {
+          throw new Error(`Cannot get game details: ${r.status}`);
+        }
+        const ns = await r.json();
+        console.log(`Game details=${JSON.stringify(ns)}`);
+        return ns;
+      }
+      async saveGame(game) {
+        console.log(`Save Game ${game.name}=${game.asJSON()}`);
+        let r = null;
+        if (game.id) {
+          r = await fetch(`{% url 'gas' %}${game.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(game),
+          });
+        } else {
+          r = await fetch(`{% url 'gas' %}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify(game),
+          });
+        }
+        if (!r.ok) {
+          throw new Error(`Cannot save game details: ${r.status}`);
+        }
+        const ns = await r.json();
+        return ns;
+      }
+    }
+
+    // When the page loads we initialise everything
+    window.onload = function () {
+      // Using localstorage as a webserver for now
+      webserver = new BadWebServer(new LocalServer());
+
+      console.log(`Find elements`);
+      gameselect = getById("gameselect");
+      pointselect = getById("pointselect");
+      editpointselect = getById("editpointselect");
+      shotselect = getById("shotselect");
+      editshotselect = getById("editshotselect");
+
+      court = getByClass("court");
+      content = getByClass("content");
+      zoomed = getByClass("zoomed");
+
+      receiverimage = getById("receiverimage");
+      serverimage = getById("serverimage");
+      receiver = getByClass("receiver");
+      server = getByClass("server");
+      shuttle = getByClass("shuttle");
+
+      console.log(`Show court`);
+      court.style.opacity = "100%";
+      court.style.transition = "opacity 5s";
+
+      // Default start positions
+      oldPos = new BadShot(-43.9, -257.8, 85.4, 269.7, -6.7, -184.3);
+
+      console.log(`Setup game`);
+      game = new BadGame([server, receiver]);
+      game.addPoint(0, 0, BadShot.fromCurrent());
+
+      [].forEach.call(game.players.concat(shuttle), function (draggable) {
+        console.log(`Attach drag events to ${draggable.classList[1]}`);
+        // Start drag events
+        draggable.addEventListener("mousedown", (evt) => {
+          evt.preventDefault();
+          startdrag(draggable, evt);
+        });
+        draggable.addEventListener("touchstart", (evt) => {
+          evt.preventDefault();
+          startdrag(draggable, evt.targetTouches[0]);
+        });
+        draggable.addEventListener("mouseup", enddrag);
+        draggable.addEventListener("touchend", enddrag);
+        draggable.addEventListener("touchcancel", enddrag);
+      });
+
+      // Additional movement events required to allow dragging
+      content.addEventListener("mousemove", (evt) => {
+        evt.preventDefault();
+        movedrag(content, evt);
+      });
+      content.addEventListener("touchmove", (evt) => {
+        evt.preventDefault();
+        movedrag(content, evt.targetTouches[0]);
+      });
+
+      // End drag events
+      content.addEventListener("mouseup", enddrag);
+      content.addEventListener("touchend", enddrag);
+      content.addEventListener("touchcancel", enddrag);
+
+      setCourtToSingles();
+      showMainMenu();
+      fitCourt(content.clientWidth < content.clientHeight);
+      pointPlayersAtShuttle();
+    };
+
+    function setFooter(footertext) {
+      getByClass("footer").innerHTML = footertext;
+    }
+    function getPos(evt) {
+      return {
+        x: evt.clientX,
+        y: evt.clientY,
+      };
+    }
+    function startdrag(item, evt) {
+      let pos = getPos(evt);
+      drag = item;
+      let rect = item.getBoundingClientRect();
+      delta.x = pos.x - rect.x;
+      delta.y = pos.y - rect.y;
+    }
+    function movedrag(item, evt) {
+      let pos = getPos(evt);
+      if (drag) {
+        drag.style.left = pos.x - delta.x + "px";
+        drag.style.top = pos.y - delta.y + "px";
+        pointPlayersAtShuttle();
+      }
+    }
+    function enddrag(evt) {
+      if (drag) {
+        evt.preventDefault();
+        drag = null;
+        oldPos = BadShot.fromCurrent(); //Update stored current positions
+        if (editshot) {
+          editshot.fromCurrent(); //Update edited shot if set
+        }
+      }
+    }
+
+    window.onresize = function (event) {
+      fitCourt(content.clientWidth < content.clientHeight);
+    };
+    function getAngleToDest(source, dest) {
+      let sr = source.getBoundingClientRect();
+      let dr = dest.getBoundingClientRect();
+
+      // Get new position from 0,0
+      // Use center of each item (left + width / 2)
+      let x = dr.left + dr.width / 2 - (sr.left + sr.width / 2);
+      let y = dr.top + dr.height / 2 - (sr.top + sr.height / 2);
+      return getAngleInDegrees(x, y);
+    }
+    function getAngleInDegrees(x, y) {
+      // Get angle to new position from 0,0
+      let angle = Math.round(Math.atan2(y, x) * (180 / Math.PI));
+      return angle < 0 ? angle + 360 : angle;
+    }
+    function pointPlayersAtShuttle() {
+      let angle = getAngleToDest(receiver, shuttle);
+      receiverimage.style.transform = `rotate(${
+        angle + 330
+      }deg) translate(0%, 0%)`;
+      angle = getAngleToDest(server, shuttle);
+      serverimage.style.transform = `rotate(${
+        angle + 300
+      }deg) translate(0%, 0%)`;
+    }
+
+    function rotateCourt() {
+      oldPos = BadShot.fromCurrent();
+      fitCourt();
+    }
+    function fitCourt(vertical = null) {
+      rotated = zoomed.classList.contains("rotated");
+      let remove_class = rotated && vertical !== false;
+      let add_class = !rotated && vertical !== true;
+      let prect = content.getBoundingClientRect();
+      if (remove_class) {
+        zoomed.classList.remove("rotated");
+        rotated = false;
+      } else if (add_class) {
+        zoomed.classList.add("rotated");
+        rotated = true;
+      }
+
+      let zheight =
+        (((rotated ? prect.width : prect.height) - 12) / court.clientHeight) *
+        100;
+      let zwidth =
+        (((rotated ? prect.height : prect.width) - 12) / court.clientWidth) *
+        100;
+      zoom = Math.min(zheight, zwidth); //Set current zoom
+      console.log(`Zoom=${zoom}`);
+      zoomed.style.zoom = `${zoom}%`;
+      serverimage.style.zoom = `${zoom * 0.7}%`;
+      receiverimage.style.zoom = `${zoom * 0.7}%`;
+      shuttleimage.style.zoom = `${zoom * 0.5}%`;
+
+      //Apply relative positions at new zoom
+      oldPos.toCurrent();
+      pointPlayersAtShuttle();
+
+      console.log(`zoom=${zoomed.style.zoom} rotated=${rotated}`);
+    }
+
+    function delay(time) {
+      return new Promise((resolve) => setTimeout(resolve, time));
+    }
+    function setCourtToSingles() {
+      let col = "black";
+      Array.prototype.slice
+        .call(document.getElementsByClassName("area"))
+        .forEach((de) => {
+          if (de.id.includes("2")) de.style.background = col;
+        });
+    }
+
+    function getOptions(defval, vals, d = true) {
+      let options = "";
+      if (d) {
+        options += `<option value="0" hidden selected>${defval}</option>`;
+      }
+      vals.forEach((v, i, a) => {
+        console.log(`add option ${i}=${v}`);
+        options += `<option value="${i}">${v}</option>`;
+      });
+      return options;
+    }
+    function getGameNames(defval, vals, d = true) {
+      let options = "";
+      if (d) {
+        options += `<option value="0" hidden selected>${defval}</option>`;
+      }
+      vals.forEach((v, i, a) => {
+        console.log(`add option ${v.id}=${v.name}`);
+        options += `<option value="${v.id}">${v.name}</option>`;
+      });
+      return options;
+    }
+
+    function refreshGameNames() {
+      setFooter(`Loading games`);
+      webserver.loadGameNames().then((ns) => {
+        gameselect.innerHTML = getGameNames("Select Game", ns);
+        setFooter(`Select or add a new game`);
+      });
+    }
+    function refreshPoints() {
+      let allpoints = [...game.points].map(
+        (o) => `${o.team_a} - ${o.total - o.team_a}`
+      );
+      pointselect.innerHTML = getOptions("0 - 0", allpoints, false);
+      selectPoint({ selectedIndex: 0 });
+    }
+    function refreshEditPoints() {
+      let allpoints = [...game.points].map(
+        (o) => `${o.team_a} - ${o.total - o.team_a}`
+      );
+      editpointselect.innerHTML = getOptions("0 - 0", allpoints, false);
+      editpointselect.value = pointselect.value;
+      selectEditPoint({ selectedIndex: pointselect.value });
+    }
+    function refreshShots() {
+      console.log(`refreshShots`);
+      console.log(`shots ${shotselect.length}`);
+      let allshots = [...editpoint.shots].map(
+        (v, i, a) => `${i + 1} of ${a.length}`
+      );
+      console.log(`allshots ${allshots.length}`);
+      shotselect.innerHTML = getOptions("0 of 0", allshots, false);
+    }
+
+    function selectGame(item) {
+      console.log(`selectGame`);
+      let gamename = item.options[item.selectedIndex].text;
+      let gameid = item.options[item.selectedIndex].value;
+      console.log(`Game Id=${gameid}`);
+      loadGame(gameid, gamename);
+    }
+    function newGame() {
+      let gamename = window.prompt(
+        "Name of new game",
+        "Wang Yihan 0-0 Cheng Shao Chieh (Olympics 2012)"
+      );
+      if (gamename !== null) {
+        if (!gamename)
+          gamename = "Wang Yihan 0-0 Cheng Shao Chieh (Olympics 2012)";
+        loadGame(undefined, gamename);
+      }
+    }
+
+    function loadGame(gameid, gamename) {
+      // load the game then show the game menu
+      console.log(`loadGame ${gameid},${gamename}`);
+      if (gamename) {
+        // only if a game name has been entered
+        if (gameid) {
+          webserver.loadGame(gameid).then((loadedgame) => {
+            if (loadedgame) {
+              game.name = gamename;
+              console.log(`loaded Game ${JSON.stringify(loadedgame)}`);
+              game.fromJSON(loadedgame);
+              console.log(`parsed Game ${game.name}`);
+              showGameMenu();
+            } else {
+              setFooter(`Enter a valid game name`);
+            }
+          });
+        } else {
+          // if game does not exist then create a new game
+          //game.fromJSON('[{"total":0,"team_a":0,"shots":[{"a1x":-43.8956518954918,"a1y":-257.82076075819674,"b1x":85.40115906762296,"b1y":269.68561091188525,"sx":-6.683817879098361,"sy":-184.3130763319672}]}]');
+          let un = "{{user.id}}";
+          let defgame = {
+            name: gamename,
+            user: un,
+            points: [
+              {
+                total: 0,
+                team_a: 0,
+                shots: [
+                  {
+                    a1x: -39.193,
+                    a1y: -366.424,
+                    b1x: 119.596,
+                    b1y: 401.732,
+                    sx: -32.155,
+                    sy: -326.43,
+                  },
+                  {
+                    a1x: 8.4,
+                    a1y: -367.765,
+                    b1x: 65.97,
+                    b1y: 624.951,
+                    sx: 50.966,
+                    sy: 589.911,
+                  },
+                  {
+                    a1x: -21.765,
+                    a1y: -353.018,
+                    b1x: 24.409,
+                    b1y: 483.512,
+                    sx: -23.441,
+                    sy: -293.583,
+                  },
+                  {
+                    a1x: -62.655,
+                    a1y: -340.952,
+                    b1x: -163.283,
+                    b1y: 485.523,
+                    sx: -210.463,
+                    sy: 464.559,
+                  },
+                  {
+                    a1x: -141.754,
+                    a1y: -206.886,
+                    b1x: -72.118,
+                    b1y: 411.116,
+                    sx: -197.056,
+                    sy: -146.111,
+                  },
+                  {
+                    a1x: -35.171,
+                    a1y: -276.6,
+                    b1x: -168.646,
+                    b1y: 593.446,
+                    sx: -218.507,
+                    sy: 549.691,
+                  },
+                  {
+                    a1x: -98.182,
+                    a1y: -413.347,
+                    b1x: -90.887,
+                    b1y: 519.71,
+                    sx: -183.649,
+                    sy: -386.089,
+                  },
+                  {
+                    a1x: -31.149,
+                    a1y: -405.974,
+                    b1x: 46.53,
+                    b1y: 267.666,
+                    sx: 97.219,
+                    sy: 193.076,
+                  },
+                  {
+                    a1x: 106.268,
+                    a1y: -165.325,
+                    b1x: 28.431,
+                    b1y: 335.369,
+                    sx: 155.537,
+                    sy: -93.155,
+                  },
+                  {
+                    a1x: -13.721,
+                    a1y: -322.182,
+                    b1x: -105.635,
+                    b1y: 616.237,
+                    sx: -106.561,
+                    sy: 595.944,
+                  },
+                  {
+                    a1x: -133.039,
+                    a1y: -394.578,
+                    b1x: -102.953,
+                    b1y: 561.27,
+                    sx: -210.463,
+                    sy: -390.111,
+                  },
+                  {
+                    a1x: -34.501,
+                    a1y: -385.864,
+                    b1x: -68.766,
+                    b1y: 347.435,
+                    sx: -44.221,
+                    sy: 274.856,
+                  },
+                  {
+                    a1x: -21.094,
+                    a1y: -364.413,
+                    b1x: -30.558,
+                    b1y: 341.402,
+                    sx: -58.968,
+                    sy: -333.133,
+                  },
+                  {
+                    a1x: 11.752,
+                    a1y: -335.589,
+                    b1x: 27.761,
+                    b1y: 342.743,
+                    sx: 54.988,
+                    sy: 276.867,
+                  },
+                  {
+                    a1x: -13.721,
+                    a1y: -340.952,
+                    b1x: 27.091,
+                    b1y: 352.798,
+                    sx: -42.21,
+                    sy: -304.979,
+                  },
+                  {
+                    a1x: -35.171,
+                    a1y: -360.391,
+                    b1x: -81.503,
+                    b1y: 415.138,
+                    sx: -138.737,
+                    sy: 401.548,
+                  },
+                  {
+                    a1x: -117.622,
+                    a1y: -190.798,
+                    b1x: -63.404,
+                    b1y: 379.611,
+                    sx: -180.968,
+                    sy: -104.55,
+                  },
+                ],
+              },
+              {
+                total: 1,
+                team_a: 0,
+                shots: [
+                  {
+                    a1x: 114.982,
+                    a1y: -363.073,
+                    b1x: -15.81,
+                    b1y: 353.468,
+                    sx: -15.397,
+                    sy: 307.702,
+                  },
+                  {
+                    a1x: 64.037,
+                    a1y: -277.27,
+                    b1x: 22.398,
+                    b1y: 370.897,
+                    sx: 57.669,
+                    sy: -212.474,
+                  },
+                  {
+                    a1x: 41.917,
+                    a1y: -240.402,
+                    b1x: 80.717,
+                    b1y: 259.622,
+                    sx: 115.988,
+                    sy: -14.056,
+                  },
+                ],
+              },
+              {
+                total: 2,
+                team_a: 0,
+                shots: [
+                  {
+                    a1x: -74.05,
+                    a1y: -332.237,
+                    b1x: 77.365,
+                    b1y: 382.292,
+                    sx: 72.417,
+                    sy: 308.373,
+                  },
+                ],
+              },
+            ],
+          };
+          game.fromJSON(defgame);
+          game.id = undefined;
+          showGameMenu();
+        }
+      } else {
+        setFooter(`Select or add a new game`);
+      }
+    }
+    function saveGame() {
+      // save to web server
+      console.log(`saveGame`);
+      setFooter(`Game: ${game.name} saving`);
+
+      webserver
+        .saveGame(game)
+        .then((r) => {
+          setFooter(`Game: ${game.name} saved`);
+        })
+        .catch((error) => {
+          setFooter(`Game: ${game.name} ${error.message}`);
+        });
+      // Check localstorage with console.log(`${JSON.stringify(window.localStorage)}`);
+    }
+
+    function showMainMenu() {
+      console.log(`showMainMenu`);
+      refreshGameNames();
+      getByClass("gamemenu").style.display = "none";
+      getByClass("editmenu").style.display = "none";
+      // getByClass("gamemenu").style.display = "flex";
+      // getByClass("editmenu").style.display = "flex";
+      getByClass("mainmenu").style.display = "flex";
+    }
+    function showGameMenu() {
+      console.log(`showGameMenu`);
+      editshot = null; // No longer allow editing of positions
+      refreshPoints();
+      getByClass("mainmenu").style.display = "none";
+      getByClass("editmenu").style.display = "none";
+      getByClass("gamemenu").style.display = "flex";
+    }
+    function showEditMenu() {
+      console.log(`showEditMenu`);
+      refreshEditPoints();
+      getByClass("mainmenu").style.display = "none";
+      getByClass("gamemenu").style.display = "none";
+      getByClass("editmenu").style.display = "flex";
+    }
+
+    function selectPoint(item) {
+      console.log(`selectPoint ${JSON.stringify(item.selectedIndex)}`);
+      //Select which point to show and edit
+      editpoint = game.points[item.selectedIndex];
+      editpoint.shots[0].toCurrent();
+      pointPlayersAtShuttle();
+      setFooter(
+        `Score ${editpoint.team_a} - ${
+          editpoint.total - editpoint.team_a
+        } for "${game.name}"`
       );
     }
-  };
-
-  function addPointToA() {
-    console.log(`addPointToA`);
-    let lastpoint = game.points.at(-1);
-    if (lastpoint) {
-      game.addPoint(lastpoint.total + 1, lastpoint.team_a + 1, BadShot.fromCurrent());
-    } else {
-      game.addPoint(0, 0, BadShot.fromCurrent());
-    };
-    refreshEditPoints();
-    //Set to last point
-    editpointselect.value = game.points.length - 1;
-    selectEditPoint({ selectedIndex: game.points.length - 1 });
-  };
-  function selectEditPoint(item) {
-    console.log(`selectEditPoint ${JSON.stringify(item.selectedIndex)}`);
-    editpoint = game.points[item.selectedIndex];
-    refreshShots();
-    selectShot({ selectedIndex: 0 });
-  }
-  function addPointToB() {
-    console.log(`addPointToB`);
-    let lastpoint = game.points.at(-1);
-    if (lastpoint) {
-      game.addPoint(lastpoint.total + 1, lastpoint.team_a, BadShot.fromCurrent());
-    } else {
-      game.addPoint(0, 0, BadShot.fromCurrent());
-    };
-    refreshEditPoints();
-    //Set to last point
-    editpointselect.value = game.points.length - 1;
-    selectEditPoint({ selectedIndex: game.points.length - 1 });
-  };
-  function selectShot(item) {
-    console.log(`selectShot ${item.selectedIndex}`);
-    editshot = editpoint.shots[item.selectedIndex]; //When set this gets updated by drag drop
-    editshot.toCurrent();
-    console.log(`Shot ${JSON.stringify(editshot)}`);
-    pointPlayersAtShuttle();
-    setFooter(`Score ${editpoint.team_a} - ${editpoint.total - editpoint.team_a} shot ${shotselect.options[shotselect.selectedIndex].text} for "${game.name}"`);
-  };
-  function addShotPrior() {
-    console.log(`addShotPrior`);
-    //Insert shot at current position (duplicate)
-    let ov = +shotselect.value;
-    editpoint.shots.splice(ov, 0, BadShot.fromCurrent());
-    //Refresh shots
-    refreshShots();
-    //Set current shot to new shot
-    shotselect.value = ov;
-    selectShot({ selectedIndex: ov });
-  };
-  function deleteShot() {
-    console.log(`deleteShot`);
-    //cannot delete last shot
-    if (editpoint.shots.length > 1) {
-      let ov = +shotselect.value;
-      editpoint.shots.splice(ov, 1); //Delete 1 item
-      if (ov >= editpoint.shots.length) {
-        ov = editpoint.shots.length - 1;
+    function playOnePoint() {
+      console.log(`playOnePoint`);
+      playNextShot(editpoint, 0);
+    }
+    function playAllPoints() {
+      console.log(`playAllPoints`);
+      playNextShot(editpoint, 0, true);
+      setFooter(
+        `Score ${editpoint.team_a} - ${
+          editpoint.total - editpoint.team_a
+        } for "${game.name}"`
+      );
+    }
+    function playNextShot(point, i, playall = false) {
+      let pt = 0.5;
+      if (i == 1) {
+        server.style.transition = `left ${pt}s, top ${pt}s`;
+        server.style.transitionTimingFunction = `linear`;
+        receiver.style.transition = `left ${pt}s, top ${pt}s`;
+        receiver.style.transitionTimingFunction = `linear`;
+        shuttle.style.transition = `left ${pt}s, top ${pt}s`;
+        shuttle.style.transitionTimingFunction = `linear`;
       }
+      let newShot = point.shots[i];
+      /* angle of movement of shuttle to next destination */
+      let angle = getAngleInDegrees(
+        newShot.sx - oldPos.sx,
+        newShot.sy - oldPos.sy
+      );
+      if (rotated) {
+        shuttle.style.transform = `rotate(${angle - 90}deg)`;
+      } else {
+        shuttle.style.transform = `rotate(${angle}deg)`;
+      }
+      newShot.toCurrent();
+
+      pointPlayersAtShuttle();
+      i = i + 1;
+      if (point.shots.length > i) {
+        delay(pt * 1000).then(() => {
+          playNextShot(point, i, playall);
+        });
+      } else {
+        delay(pt * 2000).then(() => {
+          server.style.transition = ``;
+          receiver.style.transition = ``;
+          shuttle.style.transition = ``;
+          //Move to next point
+          let ov = +pointselect.value;
+          if (ov + 1 < game.points.length) {
+            pointselect.value = ov + 1;
+            selectPoint({ selectedIndex: ov + 1 });
+            if (playall) {
+              playNextShot(editpoint, 0, playall);
+            }
+          }
+        });
+      }
+    }
+
+    function addPointToA() {
+      console.log(`addPointToA`);
+      let lastpoint = game.points.at(-1);
+      if (lastpoint) {
+        game.addPoint(
+          lastpoint.total + 1,
+          lastpoint.team_a + 1,
+          BadShot.fromCurrent()
+        );
+      } else {
+        game.addPoint(0, 0, BadShot.fromCurrent());
+      }
+      refreshEditPoints();
+      //Set to last point
+      editpointselect.value = game.points.length - 1;
+      selectEditPoint({ selectedIndex: game.points.length - 1 });
+    }
+    function selectEditPoint(item) {
+      console.log(`selectEditPoint ${JSON.stringify(item.selectedIndex)}`);
+      editpoint = game.points[item.selectedIndex];
+      refreshShots();
+      selectShot({ selectedIndex: 0 });
+    }
+    function addPointToB() {
+      console.log(`addPointToB`);
+      let lastpoint = game.points.at(-1);
+      if (lastpoint) {
+        game.addPoint(
+          lastpoint.total + 1,
+          lastpoint.team_a,
+          BadShot.fromCurrent()
+        );
+      } else {
+        game.addPoint(0, 0, BadShot.fromCurrent());
+      }
+      refreshEditPoints();
+      //Set to last point
+      editpointselect.value = game.points.length - 1;
+      selectEditPoint({ selectedIndex: game.points.length - 1 });
+    }
+    function selectShot(item) {
+      console.log(`selectShot ${item.selectedIndex}`);
+      editshot = editpoint.shots[item.selectedIndex]; //When set this gets updated by drag drop
+      editshot.toCurrent();
+      console.log(`Shot ${JSON.stringify(editshot)}`);
+      pointPlayersAtShuttle();
+      setFooter(
+        `Score ${editpoint.team_a} - ${
+          editpoint.total - editpoint.team_a
+        } shot ${shotselect.options[shotselect.selectedIndex].text} for "${
+          game.name
+        }"`
+      );
+    }
+    function addShotPrior() {
+      console.log(`addShotPrior`);
+      //Insert shot at current position (duplicate)
+      let ov = +shotselect.value;
+      editpoint.shots.splice(ov, 0, BadShot.fromCurrent());
       //Refresh shots
       refreshShots();
       //Set current shot to new shot
       shotselect.value = ov;
       selectShot({ selectedIndex: ov });
     }
-  };
-  function addShotNext() {
-    console.log(`addShotNext`);
-    //Insert shot after current position (duplicate)
-    let ov = +shotselect.value;
-    editpoint.shots.splice(ov + 1, 0, BadShot.fromCurrent());
-    //Refresh shots
-    refreshShots();
-    //Set current shot to new shot
-    shotselect.value = ov + 1;
-    selectShot({ selectedIndex: ov + 1 });
-  };
-</script>
+    function deleteShot() {
+      console.log(`deleteShot`);
+      //cannot delete last shot
+      if (editpoint.shots.length > 1) {
+        let ov = +shotselect.value;
+        editpoint.shots.splice(ov, 1); //Delete 1 item
+        if (ov >= editpoint.shots.length) {
+          ov = editpoint.shots.length - 1;
+        }
+        //Refresh shots
+        refreshShots();
+        //Set current shot to new shot
+        shotselect.value = ov;
+        selectShot({ selectedIndex: ov });
+      }
+    }
+    function addShotNext() {
+      console.log(`addShotNext`);
+      //Insert shot after current position (duplicate)
+      let ov = +shotselect.value;
+      editpoint.shots.splice(ov + 1, 0, BadShot.fromCurrent());
+      //Refresh shots
+      refreshShots();
+      //Set current shot to new shot
+      shotselect.value = ov + 1;
+      selectShot({ selectedIndex: ov + 1 });
+    }
+  </script>
 
-<body>
-  <!-- Whole page element is flex column -->
-  <div class="fullPage">
+  <body>
+    <!-- Whole page element is flex column -->
+    <div class="fullPage">
+      <!-- Invisible re-usable SVG symbols -->
+      <svg style="display: none" version="2.0">
+        <defs>
+          <symbol id="shuttlesymbol" viewbox="0 0 74 98">
+            <circle
+              cx="37"
+              cy="82"
+              r="14"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+            <path
+              d="m3 2 68 0-22 72-24 0z"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+          </symbol>
+          <symbol id="shuttlecirclesymbol" viewbox="-122 -120 206 218">
+            <circle
+              cx="-17"
+              cy="62"
+              r="14"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+            <path
+              d="m-50 -18 68 0-22 72-24 0z"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+            <circle
+              cx="-19"
+              cy="19"
+              r="100"
+              fill="none"
+              stroke="#0f0"
+              stroke-width="8"
+              stroke-dasharray="8"
+            />
+          </symbol>
+          <symbol id="shuttlelinesymbol" viewbox="0 0 74 98">
+            <line
+              x1="0"
+              x2="72"
+              y1="80"
+              y2="80"
+              stroke="#fff"
+              stroke-linecap="square"
+              stroke-width="32"
+            />
+            <circle
+              cx="37"
+              cy="82"
+              r="14"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+            <path
+              d="m3 2 68 0-22 72-24 0z"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+          </symbol>
+          <symbol id="shuttleplussymbol" viewbox="0 0 74 98">
+            <circle
+              cx="37"
+              cy="82"
+              r="14"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+            <path
+              d="m3 2 68 0-22 72-24 0z"
+              fill="#fff"
+              stroke="#000"
+              stroke-width="4"
+            />
+            <line
+              x1="8"
+              x2="64"
+              y1="33"
+              y2="33"
+              stroke="green"
+              stroke-linecap="square"
+              stroke-width="16"
+            />
+            <line
+              x1="36"
+              x2="36"
+              y1="8"
+              y2="60"
+              stroke="green"
+              stroke-linecap="square"
+              stroke-width="16"
+            />
+          </symbol>
+          <symbol id="receiversymbol" viewbox="0 0 192 175">
+            <line
+              x1="107"
+              x2="140"
+              y1="128"
+              y2="148"
+              fill="none"
+              fill-opacity="0"
+              stroke="#000"
+              stroke-linecap="round"
+              stroke-width="2"
+            />
+            <ellipse
+              transform="rotate(-50.5)"
+              cx="-24.5"
+              cy="218"
+              rx="6.75"
+              ry="17.6"
+              fill="#b2b2b2"
+              stroke="#000"
+            />
+            <ellipse
+              transform="matrix(.185 -.983 .975 .222 0 0)"
+              cx="23.3"
+              cy="169"
+              rx="8.77"
+              ry="21.8"
+              fill="#ffffff"
+              stroke="#000"
+              stroke-width="1.06"
+            />
+            <ellipse
+              transform="matrix(.969 .248 -.259 .966 0 0)"
+              cx="24.3"
+              cy="39.3"
+              rx="8.63"
+              ry="21.9"
+              fill="#ffffff"
+              stroke="#000"
+              stroke-width="1.02"
+            />
+            <ellipse
+              transform="rotate(22.9)"
+              cx="149"
+              cy="-33.8"
+              rx="7.73"
+              ry="17.1"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="rotate(-44.3)"
+              cx="-12.7"
+              cy="142"
+              rx="4.88"
+              ry="29.6"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="rotate(-83.7)"
+              cx="-22.7"
+              cy="125"
+              rx="13.6"
+              ry="30.1"
+              stroke="#000"
+            />
+            <ellipse
+              transform="rotate(-31.5)"
+              cx="112"
+              cy="125"
+              rx="4.68"
+              ry="29.8"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="rotate(-48.2)"
+              cx="-15.5"
+              cy="60.6"
+              rx="8.28"
+              ry="29"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="rotate(39.7)"
+              cx="90.4"
+              cy="-.791"
+              rx="13.6"
+              ry="24.9"
+              stroke="#000"
+            />
+            <ellipse
+              transform="rotate(-47.4)"
+              cx="29.2"
+              cy="113"
+              rx="27.3"
+              ry="35.9"
+              fill="#007fff"
+              stroke="#005fbf"
+            />
+            <ellipse
+              transform="rotate(-49.1)"
+              cx="24.8"
+              cy="147"
+              rx="13.8"
+              ry="18"
+              fill="#7f3f00"
+              stroke="#4c4c4c"
+            />
+            <ellipse
+              transform="rotate(16.9)"
+              cx="148"
+              cy=".552"
+              rx="7.41"
+              ry="21.7"
+              fill="#007fff"
+              stroke="#005fbf"
+            />
+            <ellipse
+              transform="rotate(260)"
+              cx="-102"
+              cy="72"
+              rx="7.36"
+              ry="19.6"
+              fill="#007fff"
+              stroke="#005fbf"
+              stroke-width=".999"
+            />
+          </symbol>
+          <symbol id="serversymbol" viewbox="0 0 98 209">
+            <line
+              x1="28"
+              x2="63"
+              y1="171"
+              y2="193"
+              stroke="#000"
+              stroke-linecap="round"
+              stroke-width="2"
+            />
+            <ellipse
+              transform="matrix(1 -.00075 .85 .53 0 0)"
+              cx="-245"
+              cy="379"
+              rx="4.3"
+              ry="15"
+              fill="#b2b2b2"
+              stroke="#000"
+            />
+            <ellipse
+              transform="matrix(.17 -.99 .96 .27 0 0)"
+              cx="-.19"
+              cy="30"
+              rx="6.9"
+              ry="14"
+              fill="#ffffff"
+              stroke="#000"
+            />
+            <ellipse
+              transform="matrix(.98 -.18 .16 .99 0 0)"
+              cx="17"
+              cy="82"
+              rx="8.6"
+              ry="22"
+              fill="#ffffff"
+              stroke="#000"
+            />
+            <ellipse
+              transform="matrix(.74 -.67 .6 .8 0 0)"
+              cx="14"
+              cy="49"
+              rx="8.2"
+              ry="29"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="rotate(-28)"
+              cx="-57"
+              cy="139"
+              rx="4.6"
+              ry="28"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="matrix(-1 -.086 .38 -.93 0 0)"
+              cx="-72"
+              cy="-64"
+              rx="11"
+              ry="19"
+              stroke="#000"
+            />
+            <ellipse
+              transform="rotate(-10)"
+              cx="61"
+              cy="156"
+              rx="5.3"
+              ry="34"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="matrix(.73 -.69 -.063 1 0 0)"
+              cx="42"
+              cy="108"
+              rx="9.9"
+              ry="15"
+              fill="#bf5f00"
+              stroke="#7f3f00"
+            />
+            <ellipse
+              transform="matrix(-.94 -.33 -.3 .95 0 0)"
+              cx="-49"
+              cy="74"
+              rx="11"
+              ry="17"
+              stroke="#000"
+            />
+            <ellipse
+              transform="matrix(-.7 .71 -.79 -.61 0 0)"
+              cx="46"
+              cy="-89"
+              rx="28"
+              ry="23"
+              fill="#007fff"
+              stroke="#005fbf"
+            />
+            <ellipse
+              transform="rotate(149)"
+              cx="-12"
+              cy="-123"
+              rx="7.4"
+              ry="22"
+              fill="#007fff"
+              stroke="#005fbf"
+            />
+            <ellipse
+              transform="rotate(212)"
+              cx="-71"
+              cy="-91"
+              rx="7.4"
+              ry="20"
+              fill="#007fff"
+              stroke="#005fbf"
+            />
+            <ellipse
+              transform="rotate(-29)"
+              cx="-7"
+              cy="108"
+              rx="14"
+              ry="18"
+              fill="#7f3f00"
+              stroke="#4c4c4c"
+            />
+          </symbol>
+        </defs>
+      </svg>
 
-    <!-- Invisible re-usable SVG symbols -->
-    <svg style="display: none" version="2.0">
-      <defs>
-        <symbol id="shuttlesymbol" viewbox="0 0 74 98">
-          <circle cx="37" cy="82" r="14" fill="#fff" stroke="#000" stroke-width="4" />
-          <path d="m3 2 68 0-22 72-24 0z" fill="#fff" stroke="#000" stroke-width="4" />
-        </symbol>
-        <symbol id="shuttlecirclesymbol" viewbox="-122 -120 206 218">
-          <circle cx="-17" cy="62" r="14" fill="#fff" stroke="#000" stroke-width="4" />
-          <path d="m-50 -18 68 0-22 72-24 0z" fill="#fff" stroke="#000" stroke-width="4" />
-          <circle cx="-19" cy="19" r="100" fill="none" stroke="#0f0" stroke-width="8" stroke-dasharray="8" />
-        </symbol>
-        <symbol id="shuttlelinesymbol" viewbox="0 0 74 98">
-          <line x1="0" x2="72" y1="80" y2="80" stroke="#fff" stroke-linecap="square" stroke-width="32" />
-          <circle cx="37" cy="82" r="14" fill="#fff" stroke="#000" stroke-width="4" />
-          <path d="m3 2 68 0-22 72-24 0z" fill="#fff" stroke="#000" stroke-width="4" />
-        </symbol>
-        <symbol id="shuttleplussymbol" viewbox="0 0 74 98">
-          <circle cx="37" cy="82" r="14" fill="#fff" stroke="#000" stroke-width="4" />
-          <path d="m3 2 68 0-22 72-24 0z" fill="#fff" stroke="#000" stroke-width="4" />
-          <line x1="8" x2="64" y1="33" y2="33" stroke="green" stroke-linecap="square" stroke-width="16" />
-          <line x1="36" x2="36" y1="8" y2="60" stroke="green" stroke-linecap="square" stroke-width="16" />
-        </symbol>
-        <symbol id="receiversymbol" viewbox="0 0 192 175">
-          <line x1="107" x2="140" y1="128" y2="148" fill="none" fill-opacity="0" stroke="#000" stroke-linecap="round"
-            stroke-width="2" />
-          <ellipse transform="rotate(-50.5)" cx="-24.5" cy="218" rx="6.75" ry="17.6" fill="#b2b2b2" stroke="#000" />
-          <ellipse transform="matrix(.185 -.983 .975 .222 0 0)" cx="23.3" cy="169" rx="8.77" ry="21.8" fill="#ffffff"
-            stroke="#000" stroke-width="1.06" />
-          <ellipse transform="matrix(.969 .248 -.259 .966 0 0)" cx="24.3" cy="39.3" rx="8.63" ry="21.9" fill="#ffffff"
-            stroke="#000" stroke-width="1.02" />
-          <ellipse transform="rotate(22.9)" cx="149" cy="-33.8" rx="7.73" ry="17.1" fill="#bf5f00" stroke="#7f3f00" />
-          <ellipse transform="rotate(-44.3)" cx="-12.7" cy="142" rx="4.88" ry="29.6" fill="#bf5f00" stroke="#7f3f00" />
-          <ellipse transform="rotate(-83.7)" cx="-22.7" cy="125" rx="13.6" ry="30.1" stroke="#000" />
-          <ellipse transform="rotate(-31.5)" cx="112" cy="125" rx="4.68" ry="29.8" fill="#bf5f00" stroke="#7f3f00" />
-          <ellipse transform="rotate(-48.2)" cx="-15.5" cy="60.6" rx="8.28" ry="29" fill="#bf5f00" stroke="#7f3f00" />
-          <ellipse transform="rotate(39.7)" cx="90.4" cy="-.791" rx="13.6" ry="24.9" stroke="#000" />
-          <ellipse transform="rotate(-47.4)" cx="29.2" cy="113" rx="27.3" ry="35.9" fill="#007fff" stroke="#005fbf" />
-          <ellipse transform="rotate(-49.1)" cx="24.8" cy="147" rx="13.8" ry="18" fill="#7f3f00" stroke="#4c4c4c" />
-          <ellipse transform="rotate(16.9)" cx="148" cy=".552" rx="7.41" ry="21.7" fill="#007fff" stroke="#005fbf" />
-          <ellipse transform="rotate(260)" cx="-102" cy="72" rx="7.36" ry="19.6" fill="#007fff" stroke="#005fbf"
-            stroke-width=".999" />
-        </symbol>
-        <symbol id="serversymbol" viewbox="0 0 98 209">
-          <line x1="28" x2="63" y1="171" y2="193" stroke="#000" stroke-linecap="round" stroke-width="2" />
-          <ellipse transform="matrix(1 -.00075 .85 .53 0 0)" cx="-245" cy="379" rx="4.3" ry="15" fill="#b2b2b2"
-            stroke="#000" />
-          <ellipse transform="matrix(.17 -.99 .96 .27 0 0)" cx="-.19" cy="30" rx="6.9" ry="14" fill="#ffffff"
-            stroke="#000" />
-          <ellipse transform="matrix(.98 -.18 .16 .99 0 0)" cx="17" cy="82" rx="8.6" ry="22" fill="#ffffff"
-            stroke="#000" />
-          <ellipse transform="matrix(.74 -.67 .6 .8 0 0)" cx="14" cy="49" rx="8.2" ry="29" fill="#bf5f00"
-            stroke="#7f3f00" />
-          <ellipse transform="rotate(-28)" cx="-57" cy="139" rx="4.6" ry="28" fill="#bf5f00" stroke="#7f3f00" />
-          <ellipse transform="matrix(-1 -.086 .38 -.93 0 0)" cx="-72" cy="-64" rx="11" ry="19" stroke="#000" />
-          <ellipse transform="rotate(-10)" cx="61" cy="156" rx="5.3" ry="34" fill="#bf5f00" stroke="#7f3f00" />
-          <ellipse transform="matrix(.73 -.69 -.063 1 0 0)" cx="42" cy="108" rx="9.9" ry="15" fill="#bf5f00"
-            stroke="#7f3f00" />
-          <ellipse transform="matrix(-.94 -.33 -.3 .95 0 0)" cx="-49" cy="74" rx="11" ry="17" stroke="#000" />
-          <ellipse transform="matrix(-.7 .71 -.79 -.61 0 0)" cx="46" cy="-89" rx="28" ry="23" fill="#007fff"
-            stroke="#005fbf" />
-          <ellipse transform="rotate(149)" cx="-12" cy="-123" rx="7.4" ry="22" fill="#007fff" stroke="#005fbf" />
-          <ellipse transform="rotate(212)" cx="-71" cy="-91" rx="7.4" ry="20" fill="#007fff" stroke="#005fbf" />
-          <ellipse transform="rotate(-29)" cx="-7" cy="108" rx="14" ry="18" fill="#7f3f00" stroke="#4c4c4c" />
-        </symbol>
-      </defs>
-    </svg>
+      <!-- Headers are fixed at the top auto sized to its contents -->
+      <!-- Main menu -->
+      <div class="header mainmenu">
+        <a href="{% url 'home' %}"><button>Exit</button></a>
+        <!-- Create a new game -->
+        <button onclick="newGame()">New</button>
+        <!-- Select a game to load -->
+        <select
+          name="gameselect"
+          id="gameselect"
+          onchange="selectGame(this)"
+        ></select>
+      </div>
+      <!-- Game menu -->
+      <div class="header gamemenu">
+        <!-- Go back to the main menu -->
+        <button onclick="showMainMenu()">Back</button>
+        <!-- Select the current point -->
+        <select
+          name="pointselect"
+          id="pointselect"
+          onchange="selectPoint(this)"
+        >
+          <option value="0" selected>0 - 0</option>
+        </select>
+        <!-- Play the current point then advance to the next -->
+        <button onclick="playOnePoint()">
+          <svg
+            class="btn"
+            style="transform: rotate(-90deg) translate(-2px, 0)"
+            version="2.0"
+          >
+            <use href="#shuttlesymbol" />
+          </svg>
+        </button>
+        <!-- Play all the points from the current one -->
+        <button onclick="playAllPoints()">
+          <svg
+            class="btn"
+            style="transform: rotate(-90deg) translate(-2px, 0)"
+            version="2.0"
+          >
+            <use href="#shuttlelinesymbol" />
+          </svg>
+        </button>
+        <!-- Go to the edit menu -->
+        <button onclick="showEditMenu()">Edit</button>
+        <!-- Save the game -->
+        <button onclick="saveGame()">Save</button>
+      </div>
+      <!-- Edit menu -->
+      <div class="header editmenu">
+        <!-- Go back to the game menu -->
+        <button onclick="showGameMenu()">Back</button>
+        <!-- Add a point to team A -->
+        <button onclick="addPointToA()">1+</button>
+        <!-- Select which point to show -->
+        <select
+          name="editpointselect"
+          id="editpointselect"
+          onchange="selectEditPoint(this)"
+        >
+          <option value="0" selected>0 - 0</option>
+        </select>
+        <!-- Add a point to team B -->
+        <button onclick="addPointToB()">+1</button>
+        <!-- Select which shot to show -->
+        <select name="shotselect" id="shotselect" onchange="selectShot(this)">
+          <option value="0" selected>shot 0 of 0</option>
+        </select>
+        <!-- Add a shot before the current one -->
+        <button onclick="addShotPrior()">
+          <svg
+            class="btn"
+            style="transform: rotate(90deg) translate(2px, 0)"
+            version="2.0"
+          >
+            <use href="#shuttleplussymbol" />
+          </svg>
+        </button>
+        <!-- Delete current shot unless it is the only shot in the point -->
+        <button onclick="deleteShot()">Delete</button>
+        <!-- Add a shot after the current one -->
+        <button onclick="addShotNext()">
+          <svg
+            class="btn"
+            style="transform: rotate(-90deg) translate(-2px, 0)"
+            version="2.0"
+          >
+            <use href="#shuttleplussymbol" />
+          </svg>
+        </button>
+      </div>
 
-    <!-- Headers are fixed at the top auto sized to its contents -->
-    <!-- Main menu -->
-    <div class="header mainmenu">
-      <a href="{% url 'home' %}"><button>Exit</button></a>
-      <!-- Create a new game -->
-      <button onclick="newGame()">New</button>
-      <!-- Select a game to load -->
-      <select name="gameselect" id="gameselect" onchange="selectGame(this)"></select>
-    </div>
-    <!-- Game menu -->
-    <div class="header gamemenu">
-      <!-- Go back to the main menu -->
-      <button onclick="showMainMenu()">Back</button>
-      <!-- Select the current point -->
-      <select name="pointselect" id="pointselect" onchange="selectPoint(this)">
-        <option value="0" selected>0 - 0</option>
-      </select>
-      <!-- Play the current point then advance to the next -->
-      <button onclick="playOnePoint()"><svg class="btn" style="transform: rotate(-90deg) translate(-2px, 0)"
-          version="2.0">
-          <use href="#shuttlesymbol" />
-        </svg></button>
-      <!-- Play all the points from the current one -->
-      <button onclick="playAllPoints()"><svg class="btn" style="transform: rotate(-90deg) translate(-2px, 0)"
-          version="2.0">
-          <use href="#shuttlelinesymbol" />
-        </svg></button>
-      <!-- Go to the edit menu -->
-      <button onclick="showEditMenu()">Edit</button>
-      <!-- Save the game -->
-      <button onclick="saveGame()">Save</button>
-    </div>
-    <!-- Edit menu -->
-    <div class="header editmenu">
-      <!-- Go back to the game menu -->
-      <button onclick="showGameMenu()">Back</button>
-      <!-- Add a point to team A -->
-      <button onclick="addPointToA()">1+</button>
-      <!-- Select which point to show -->
-      <select name="editpointselect" id="editpointselect" onchange="selectEditPoint(this)">
-        <option value="0" selected>0 - 0</option>
-      </select>
-      <!-- Add a point to team B -->
-      <button onclick="addPointToB()">+1</button>
-      <!-- Select which shot to show -->
-      <select name="shotselect" id="shotselect" onchange="selectShot(this)">
-        <option value="0" selected>shot 0 of 0</option>
-      </select>
-      <!-- Add a shot before the current one -->
-      <button onclick="addShotPrior()"><svg class="btn" style="transform: rotate(90deg) translate(2px, 0)"
-          version="2.0">
-          <use href="#shuttleplussymbol" />
-        </svg></button>
-      <!-- Delete current shot unless it is the only shot in the point -->
-      <button onclick="deleteShot()">Delete</button>
-      <!-- Add a shot after the current one -->
-      <button onclick="addShotNext()"><svg class="btn" style="transform: rotate(-90deg) translate(-2px, 0)"
-          version="2.0">
-          <use href="#shuttleplussymbol" />
-        </svg></button>
-    </div>
+      <!-- Content is sized to fill the middle so gives us the width and height we can use-->
+      <div class="content">
+        <!-- Zoomed allows us to zoom the court exactly to the content size and rotate if necessary -->
+        <div class="zoomed">
+          <!-- The court definition -->
+          <div class="court">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div
+              class="area"
+              id="TRL2"
+              onClick="moveOnClick(event, this)"
+            ></div>
+            <div class="line"></div>
+            <div
+              class="area"
+              id="TRL1"
+              onClick="moveOnClick(event, this)"
+            ></div>
+            <div class="line"></div>
+            <div
+              class="area"
+              id="TRR1"
+              onClick="moveOnClick(event, this)"
+            ></div>
+            <div class="line"></div>
+            <div
+              class="area"
+              id="TRR2"
+              onClick="moveOnClick(event, this)"
+            ></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="area" id="TML2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="TML1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="TMR1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="TMR2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="area" id="TFL2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="TFL1" onClick="moveOnClick(event,this)"></div>
+            <div class="area"></div>
+            <!-- front middle line is not marked -->
+            <div class="area" id="TFR1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="TFR2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="net"></div>
+            <div class="line"></div>
+            <div class="area" id="BFL2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BFL1" onClick="moveOnClick(event,this)"></div>
+            <div class="area"></div>
+            <!-- front middle line is not marked -->
+            <div class="area" id="BFR1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BFR2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="area" id="BML2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BML1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BMR1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BMR2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="area" id="BRL2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BRL1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BRR1" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="area" id="BRR2" onClick="moveOnClick(event,this)"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </div>
+        </div>
 
-    <!-- Content is sized to fill the middle so gives us the width and height we can use-->
-    <div class="content">
-      <!-- Zoomed allows us to zoom the court exactly to the content size and rotate if necessary -->
-      <div class="zoomed">
-        <!-- The court definition -->
-        <div class="court">
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="area" id="TRL2" onClick="moveOnClick(event, this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TRL1" onClick="moveOnClick(event, this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TRR1" onClick="moveOnClick(event, this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TRR2" onClick="moveOnClick(event, this)"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="area" id="TML2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TML1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TMR1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TMR2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="area" id="TFL2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TFL1" onClick="moveOnClick(event,this)"></div>
-          <div class="area"></div> <!-- front middle line is not marked -->
-          <div class="area" id="TFR1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="TFR2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="net"></div>
-          <div class="line"></div>
-          <div class="area" id="BFL2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BFL1" onClick="moveOnClick(event,this)"></div>
-          <div class="area"></div> <!-- front middle line is not marked -->
-          <div class="area" id="BFR1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BFR2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="area" id="BML2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BML1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BMR1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BMR2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="area" id="BRL2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BRL1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BRR1" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="area" id="BRR2" onClick="moveOnClick(event,this)"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
+        <!-- Draggable absolute placed SVGs -->
+        <div class="draggable server captioned">
+          <!-- <label for="abc" style="z-index: 2;font-size: xx-large;top: 40%;">A</label> -->
+          <svg id="serverimage" width="98" height="209" version="2.0">
+            <use href="#serversymbol" />
+          </svg>
+        </div>
+        <div class="draggable receiver captioned">
+          <!-- <label for="abc" style="z-index: 2;font-size: xx-large;top: 40%;">B</label> -->
+          <svg id="receiverimage" width="192" height="175" version="2.0">
+            <use href="#receiversymbol" />
+          </svg>
+        </div>
+        <div class="draggable shuttle">
+          <svg id="shuttleimage" width="74" height="98" version="2.0">
+            <use href="#shuttlecirclesymbol" />
+          </svg>
         </div>
       </div>
 
-      <!-- Draggable absolute placed SVGs -->
-      <div class="draggable server captioned">
-        <!-- <label for="abc" style="z-index: 2;font-size: xx-large;top: 40%;">A</label> -->
-        <svg id="serverimage" width="98" height="209" version="2.0">
-          <use href="#serversymbol" />
-        </svg>
-      </div>
-      <div class="draggable receiver captioned">
-        <!-- <label for="abc" style="z-index: 2;font-size: xx-large;top: 40%;">B</label> -->
-        <svg id="receiverimage" width="192" height="175" version="2.0">
-          <use href="#receiversymbol" />
-        </svg>
-      </div>
-      <div class="draggable shuttle">
-        <svg id="shuttleimage" width="74" height="98" version="2.0">
-          <use href="#shuttlecirclesymbol" />
-        </svg>
-      </div>
+      <!-- Footer is fixed at the bottom 30 px max-->
+      <div class="footer"></div>
     </div>
+  </body>
 
-    <!-- Footer is fixed at the bottom 30 px max-->
-    <div class="footer">
-    </div>
-  </div>
-</body>
+  {% else %}
+  <!-- When not logged in we send this body instead -->
+  <body>
+    <p>You are not logged in</p>
+    <p><a href="{% url 'login' %}">Log In</a></p>
+  </body>
 
-{% else %}
-<!-- When not logged in we send this body instead -->
-<body>
-<p>You are not logged in</p>
-<p><a href="{% url 'login' %}">Log In</a></p>
-</body>
-
-{% endif %}
-{% endblock %}
-
+  {% endif %} {% endblock %}
 </html>
