@@ -1015,9 +1015,9 @@ The movement data will be collected to allow uses like ...
     <!-- Headers are fixed at the top auto sized to its contents -->
     <!-- Main menu -->
     <div class="header mainmenu">
-      <a href="{% url 'home' %}"><button>Back to Home Page</button></a>
+      <a href="{% url 'home' %}"><button>Exit</button></a>
       <!-- Create a new game -->
-      <button onclick="newGame()">New Game</button>
+      <button onclick="newGame()">New</button>
       <!-- Select a game to load -->
       <select name="gameselect" id="gameselect" onchange="selectGame(this)"></select>
     </div>
@@ -1044,10 +1044,10 @@ The movement data will be collected to allow uses like ...
       <!-- Save the game -->
       <button onclick="saveGame()">Save</button>
     </div>
-    <!-- EDIT MENU -->
+    <!-- Edit menu -->
     <div class="header editmenu">
       <!-- Go back to the game menu -->
-      <button onclick="showGameMenu()">Back to Game Menu</button>
+      <button onclick="showGameMenu()">Back</button>
       <!-- Add a point to team A -->
       <button onclick="addPointToA()">1+</button>
       <!-- Select which point to show -->
