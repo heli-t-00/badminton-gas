@@ -33,7 +33,7 @@ Future iterations will include:
 
 ## Data Storage
 An Entity Relationship Diagram (ERD) has been created to visually represent the database structure, forming the foundation for data management.
-<img src="assets\images\ERD_P3.PNG" alt="Entity Relationship Diagram">
+<img src="staticfiles\images\ERD_P3v1.PNG" alt="Entity Relationship Diagram">
 
 
 ## Challenges & Learning Curve
@@ -65,7 +65,7 @@ The project follows the Model-View-Controller (MVC) framework:
 
 - Controller (Backend/Logic): Handles authentication, game data storage, and replay functionality
 
-<img src="/assets/images/MVC_P3.PNG", alt="MVC for Project 3>
+<img src="C:\Users\Home\Documents\GitHub\badminton-gas\staticfiles\images\MVC_P3.PNG", alt="MVC for Project 3>
 
 
 This project intends to satisfy the following Learning Objectives:
@@ -188,6 +188,7 @@ Here are future feature ideas to further improvements on this project:
 - Performance analytics (player statistics), dashboard - view at a glance
 - AI-driven game strategy suggestions
 
+Due to limited time and little support from WAES and Code Institute materials for the backend, I had to self-learn many of the steps. As a result, I created a responsive website to showcase the intended design of the application. I have used GitHub to deploy the website, providing a live link for public access. I wrote the code using Visual Studio Code, linking it to GitHub for deployment. I have now deployed this to Heroku following Code Institute's instructions. I am still in the process of self-learning backend languages and deployment processes, which I have found to be the most challenging aspect. Correct as of 28 Feb 2025.
 
 # Credits
 ###### [Back to the top](#table-of-contents)
