@@ -100,9 +100,10 @@ I have used EPIC to define this project's high-level goal and or objectives on t
 ### Deployment
 - "I want the app to be accessible online and on multiple devices."
 
-# WireFrame - CHECK THIS
+# WireFrame 
 ###### [Back to the top](#table-of-contents)
-
+<img src="\badminton-gas\staticfiles\images\wireframe_proj3.jpg" alt="wireframe project 3">
+Wireframe for Game Analysis System page only, taking into condition the responsiveness.
 
 # Design and Features
 ###### [Back to the top](#table-of-contents)
@@ -139,7 +140,7 @@ For an MVP, I will ensure core functionality works without worrying about advanc
 ###### [Back to the top](#table-of-contents)
 To ensure all features work as intended. The following test was performed
 ## Responsive
-The website used [Am I Responsive](https://ui.dev/amiresponsive?url=https://heli-t-00.github.io/Project2_badmintonCourt/)
+
 <img src="">
 
 ## Browser Friendly
