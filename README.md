@@ -139,14 +139,14 @@ For an MVP, I will ensure core functionality works without worrying about advanc
 # Testing
 ###### [Back to the top](#table-of-contents)
 To ensure all features work as intended. The following test was performed
-## Responsive
-
 <img src="">
 
 ## Browser Friendly
-The site has been tested for the following browsers: Chrome, Firefox, Edge, Vivaldi, Brave, and Tor Browser.
-Checked use this [Browserling.com](https://www.browserling.com/browse/win10/tor13.5/https://heli-t-00.github.io/Project2_badmintonCourt/)
-<img src="">
+The site has been tested for the following browsers: Chrome, Firefox, Edge.
+Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chrome127/https://badminton-gas-03d473823731.herokuapp.com/)
+<img src="\badminton-gas\staticfiles\images\loggedin_browser.PNG">
+<img src="\badminton-gas\staticfiles\images\login_broswer.PNG">
+<img src="\badminton-gas\staticfiles\images\gas_browser.PNG">
 
 ## Accessible - Lighthouse test 
 Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices, and Progressive Web App (PWA) capabilities. 
