@@ -193,10 +193,10 @@ Click this then paste in the create json and click POST
 <https://medium.com/jungletronics/a-django-blog-in-vs-code-heroku-deploy-how-to-push-your-site-to-production-a3119c4bcb81>
 
 # Stuck on this 
-adding image to home page tried the following steps
-on localserver  it works but not after it was deployed to heroku
-I followed the following steps from gemini.
-except for last part. didn't understand.
+Adding image to templates - issues with static file when deployed.
+Used Gemini Ai to try to resolve this issue
+image not appearing when deploy to heroku
+
 
 # How to Zip file
 Shift down all files without (dot prefix)
@@ -206,3 +206,34 @@ Select Compare info for both files
 -Tick both files - CONTINUE
 Check the .zip folder to make sure the file is there with the latest date and latest number after the file
 Send to code reviewer
+
+# CSRF Token 
+A 403 Forbidden error on POST requests specifically within a Django project, both locally and on Heroku, points to a likely issue with Cross-Site Request Forgery (CSRF) protection or permissions. Here's a breakdown of common causes and how to troubleshoot them:
+
+1. CSRF Token Issues: {% csrf_token %}
+Missing or Incorrect CSRF Token:
+Django's CSRF middleware protects against malicious requests. CSRF token was missing from  POST request or doesn't match the one Django expects, experienced 403 issue.
+To solve this, needed to add the CSRF token to the JavaScript on bgas.html 
+https://stackoverflow.com/questions/67175389/django-csrf-token-csrf-token-missing-or-incorrect 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

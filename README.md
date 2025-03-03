@@ -207,6 +207,6 @@ https://webdesign.tutsplus.com/svg-viewport-and-viewbox-for-beginners--cms-30844
 
 * Lucid Chart - creation
 * Followed the following tutorial to create django login and logout - https://learndjango.com/tutorials/django-login-and-logout-tutorial#log-out-button
-
+* Stackover flow -django csrf token : CSRF token missing or incorrect https://stackoverflow.com/questions/67175389/django-csrf-token-csrf-token-missing-or-incorrect 
 ###### [Back to the top](#table-of-contents)
 
