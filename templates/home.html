@@ -160,7 +160,7 @@ main {
     margin: 5px 0;
 }
 
-#circle-cover-bg {
+{% comment %} #circle-cover-bg {
     background: url('/static/images/badminton_courtBGAS.PNG') no-repeat top center / cover;
     height: 90vw;
     width: 90vw;
@@ -175,7 +175,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-}
+} {% endcomment %}
 
 /* Form */
 #signup {
@@ -404,10 +404,10 @@ main {
               </p>
             </div>
           </div>
-          <div id="benefits-image">
+          {% comment %} <div id="benefits-image">
             <div id="circle-cover-bg"></div>
           </div>
-        </div>
+        </div> {% endcomment %}
       </section>
 
 <p><a href="{% url 'password_change' %}">Password Change</a></p>
