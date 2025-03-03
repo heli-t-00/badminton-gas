@@ -153,7 +153,7 @@ Used this to test the quality of the website. Providing a comprehensive audit of
 
 <img src="stactic/images/lighthouse1.PNG", alt="lighthouse test overall summary homepage">
 <img src="stactic/images/lighthouse_performance.PNG", alt="lighthouse test performance">
-<img src="stactic/images/lighthouse_accessibility.PNG", alt="lighthouse test accessibility">
+[<img src="stactic/images/lighthouse_accessibility.PNG", alt="lighthouse test accessibility">](https://github.com/heli-t-00/badminton-gas/blob/main/lighthouse_accessibility.PNG)
 <img src="stactic/images/lighthouse_seo.PNG", alt="lighthouse test SEO">
 <img src="stactic/images/lighthouse_bestpractises.PNG", alt="lighthouse test best practises">
 <img src="stactic/images/Lighthouse_bgas.PNG", alt="lighthouse test Analysis Page">
