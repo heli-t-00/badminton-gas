@@ -157,7 +157,7 @@ Used this to test the quality of the website. Providing a comprehensive audit of
 <img src="stactic/images/lighthouse_seo.PNG", alt="lighthouse test SEO">
 <img src="stactic/images/lighthouse_bestpractises.PNG", alt="lighthouse test best practises">
 <img src="stactic/images/Lighthouse_bgas.PNG", alt="lighthouse test Analysis Page">
-<img src="stactic/images/Lighthouse_myaccount.PNG", alt="lighthouse test my account page">
+[image](https://github.com/heli-t-00/badminton-gas/blob/main/stactic/images/Lighthouse_myaccount.PNG)
 Summary of areas where improvements are provided, this would be areas for improvements at a later date. Documents can be found as PDF.
 
 ## Validator Testing
