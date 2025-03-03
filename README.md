@@ -144,14 +144,21 @@ To ensure all features work as intended. The following test was performed
 ## Browser Friendly
 The site has been tested for the following browsers: Chrome, Firefox, Edge.
 Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chrome127/https://badminton-gas-03d473823731.herokuapp.com/)
-<img src="staticfiles\images\loggedin_browser.PNG">
-<img src="staticfiles\images\login_broswer.PNG">
-<img src="staticfiles\images\gas_browser.PNG">
+<img src="staticfiles\images\loggedin_browser.PNG", alt="login browser test">
+<img src="staticfiles\images\login_browser.PNG", alt="login browser test" >
+<img src="staticfiles\images\gas_browser.PNG", alt="analysis browser test page">
 
 ## Accessible - Lighthouse test 
-Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices, and Progressive Web App (PWA) capabilities. 
-<img src="">
-<img src="">
+Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices capabilities.
+
+<img src="staticfiles\images\lighthouse1.PNG", alt="lighthouse test overall summary homepage">
+<img src="staticfiles\images\lighthouse_performance.PNG", alt="lighthouse test performance">
+<img src="staticfiles\images\lighthouse_accessibility.PNG", alt="lighthouse test accessibility">
+<img src="staticfiles\images\lighthouse_seo.PNG", alt="lighthouse test SEO">
+<img src="staticfiles\images\lighthouse_bestpractises.PNG", alt="lighthouse test best practises">
+<img src="staticfiles\images\lighthouse_bgas.PNG", alt="lighthouse test Analysis Page">
+<img src="staticfiles\images\lighthouse_myaccount.PNG", alt="lighthouse test my account page">
+Summary of areas where improvements are provided, this would be areas for improvements at a later date. Documents can be found as PDF.
 
 ## Validator Testing
 ### HTML & CSS & JavaScript
