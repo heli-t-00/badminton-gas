@@ -65,7 +65,7 @@ The project follows the Model-View-Controller (MVC) framework:
 
 - Controller (Backend/Logic): Handles authentication, game data storage, and replay functionality
 
-<img src="staticfiles\images\MVC_P3.PNG", alt="MVC for Project 3>
+<img src="static\images\MVC_P3.PNG", alt="MVC for Project 3>
 
 
 This project intends to satisfy the following Learning Objectives:
