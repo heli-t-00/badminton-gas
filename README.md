@@ -33,7 +33,8 @@ Future iterations will include:
 
 ## Data Storage
 An Entity Relationship Diagram (ERD) has been created to visually represent the database structure, forming the foundation for data management.
-<img src="staticfiles\images\ERD_P3v1.PNG" alt="Entity Relationship Diagram">
+<img src="staticfiles/images/ERD_P3v1.PNG" alt="Entity Relationship Diagram">
+
 
 
 ## Challenges & Learning Curve
