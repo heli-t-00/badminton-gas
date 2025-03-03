@@ -144,7 +144,7 @@ To ensure all features work as intended. The following test was performed
 ## Browser Friendly
 The site has been tested for the following browsers: Chrome, Firefox, Edge.
 Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chrome127/https://badminton-gas-03d473823731.herokuapp.com/)
-<img src="/static/images/loggedin_browser.PNG", alt="login browser test">
+<img src="static/images/loggedin_browser.PNG" alt="login browser test">
 <img src="\staticfiles\images\login_broswer.PNG", alt="login browser test" >
 <img src="\staticfiles\images\gas_browser.PNG", alt="analysis browser test page">
 
