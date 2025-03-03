@@ -65,7 +65,7 @@ The project follows the Model-View-Controller (MVC) framework:
 
 - Controller (Backend/Logic): Handles authentication, game data storage, and replay functionality
 
-<img src="C:\Users\Home\Documents\GitHub\badminton-gas\staticfiles\images\MVC_P3.PNG", alt="MVC for Project 3>
+<img src="staticfiles\images\MVC_P3.PNG", alt="MVC for Project 3>
 
 
 This project intends to satisfy the following Learning Objectives:
@@ -102,7 +102,7 @@ I have used EPIC to define this project's high-level goal and or objectives on t
 
 # WireFrame 
 ###### [Back to the top](#table-of-contents)
-<img src="\badminton-gas\staticfiles\images\wireframe_proj3.jpg" alt="wireframe project 3">
+<img src="staticfiles\images\wireframe_proj3.jpg" alt="wireframe project 3">
 Wireframe for Game Analysis System page only, taking into condition the responsiveness.
 
 # Design and Features
@@ -144,9 +144,9 @@ To ensure all features work as intended. The following test was performed
 ## Browser Friendly
 The site has been tested for the following browsers: Chrome, Firefox, Edge.
 Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chrome127/https://badminton-gas-03d473823731.herokuapp.com/)
-<img src="\badminton-gas\staticfiles\images\loggedin_browser.PNG">
-<img src="\badminton-gas\staticfiles\images\login_broswer.PNG">
-<img src="\badminton-gas\staticfiles\images\gas_browser.PNG">
+<img src="staticfiles\images\loggedin_browser.PNG">
+<img src="staticfiles\images\login_broswer.PNG">
+<img src="staticfiles\images\gas_browser.PNG">
 
 ## Accessible - Lighthouse test 
 Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices, and Progressive Web App (PWA) capabilities. 
