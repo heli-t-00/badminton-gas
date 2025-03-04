@@ -66,7 +66,7 @@ The project follows the Model-View-Controller (MVC) framework:
 
 - Controller (Backend/Logic): Handles authentication, game data storage, and replay functionality
 
-<img src="static\images\MVC_P3.PNG", alt="MVC for Project 3>
+<img src=".staticfiles\images\MVC_P3.PNG", alt="MVC for Project 3>
 
 
 This project intends to satisfy the following Learning Objectives:
@@ -152,7 +152,7 @@ Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chro
 ## Accessible - Lighthouse test 
 Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices capabilities.
 
-<img src="stactic/images/lighthouse1.PNG", alt="lighthouse test overall summary homepage">
+<img src="stactic\images\lighthouse1.PNG", alt="lighthouse test overall summary homepage">
 <img src="stactic/images/lighthouse_performance.PNG", alt="lighthouse test performance">
 [Screen shot, Lighthouse - Accessibility ](https://raw.github.com/heli-t-00/badminton-gas/main/lighthouse_accessibility.PNG)
 <img src="stactic/images/lighthouse_seo.PNG", alt="lighthouse test SEO">
