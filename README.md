@@ -159,8 +159,14 @@ Used this to test the quality of the website. Providing a comprehensive audit of
 <img src="staticfiles/images/Lighthouse_myaccount.PNG" alt="lighthouse test my account page">
 <img src="staticfiles/images/Lighthouse_bgas.PNG" alt="lighthouse test Analysis page">
 
-Summary of areas where improvements are provided, this would be areas for improvements at a later date. Documents can be found as PDF.
-[Download PDF]<a href="staticfiles/images/Lighthouse_Summary_homepg.pdf"){:target="_blank"}>
+Summary of areas where improvements are provided, this would be areas for improvements, check the pdf folders for the documents.
+
+## Manual Testing
+Login details
+User: Test
+Password: Test@test.com
+Use the details to login to the Game Analysis System to create and replay a game on the system.
+
 
 
 # Deployment
