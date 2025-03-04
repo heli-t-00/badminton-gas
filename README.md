@@ -152,9 +152,15 @@ Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chro
 Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices capabilities.
 
 <img src="staticfiles/images/lighthouse1.PNG" alt="lighthouse test overall summary homepage">
-
+<img src="staticfiles/images/lighthouse_accessibility.PNG" alt="lighthouse test accessibility">
+<img src="staticfiles/images/lighthouse_performance.PNG" alt=" lighthouse test performance">
+<img src="staticfiles/images/lighthouse_bestpractises.PNG" alt="lighthouse test best practices">
+<img src="staticfiles/images/lighthouse_seo.PNG" alt="lighthouse test SEO">
+<img src="staticfiles/images/Lighthouse_myaccount.PNG" alt="lighthouse test my account page">
+<img src="staticfiles/images/Lighthouse_bgas.PNG" alt="lighthouse test Analysis page">
 
 Summary of areas where improvements are provided, this would be areas for improvements at a later date. Documents can be found as PDF.
+<a href="staticfiles/images/Lighthouse_Summary_homepg.pdf">
 
 
 # Deployment
