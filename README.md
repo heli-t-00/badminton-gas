@@ -147,7 +147,7 @@ The site has been tested for the following browsers: Chrome, Firefox, Edge.
 Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chrome127/https://badminton-gas-03d473823731.herokuapp.com/)
 <img src="stactic/images/loggedin_browser.PNG" alt="login browser test">
 <img src="stactic/images/login_broswer.PNG", alt="login browser test" >
-<img src="stactic/images/gas_browser.PNG", alt="analysis browser test page">
+<img src="staticfiles\images\gas_browser.PNG", alt="analysis browser test page"> 
 
 ## Accessible - Lighthouse test 
 Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices capabilities.
