@@ -151,26 +151,11 @@ Checked use this [Browserling.com](https://www.browserling.com/browse/win10/chro
 ## Accessible - Lighthouse test 
 Used this to test the quality of the website. Providing a comprehensive audit of the website's performances, accessibility, SEO (Search Engine Optimisation), best practices capabilities.
 
-<img src="stactic\images\lighthouse1.PNG", alt="lighthouse test overall summary homepage">
-<img src="stactic/images/lighthouse_performance.PNG", alt="lighthouse test performance">
-[Screen shot, Lighthouse - Accessibility ](https://raw.github.com/heli-t-00/badminton-gas/main/lighthouse_accessibility.PNG)
-<img src="[stactic/images/lighthouse_seo.PNG](https://github.com/heli-t-00/badminton-gas/blob/main/stactic/images/lighthouse_seo.PNG)", alt="lighthouse test SEO">
-<img src="stactic/images/lighthouse_bestpractises.PNG", alt="lighthouse test best practises">
-<img src="stactic/images/Lighthouse_bgas.PNG", alt="lighthouse test Analysis Page">
-[image](https://github.com/heli-t-00/badminton-gas/blob/main/stactic/images/Lighthouse_myaccount.PNG)
+<img src="staticfiles/images/lighthouse1.PNG" alt="lighthouse test overall summary homepage">
+
+
 Summary of areas where improvements are provided, this would be areas for improvements at a later date. Documents can be found as PDF.
 
-## Validator Testing
-### HTML & CSS & JavaScript
-No errors were returned when passing through the official [W3C Nu HTML Checker](https://validator.w3.org/nu/).
-<img src="" alt="results validation test">
-
-No errors were found when passing through the official validator - [W3C CSS Validator](https://jigsaw.w3.org/css-validator/validator). The document validates as CSS level 3 + SVG.
-<img src="">
-<img src="">
-There were warnings, which has been checked and resolved."vendor extesnion" means that the property is specific to a particular browser engine.
-
-For JavaScript I installed SonarQube for IDE to check and validate the javascript code. 
 
 # Deployment
 ###### [Back to the top](#table-of-contents)
