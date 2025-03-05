@@ -1,5 +1,5 @@
-# Project3_BadmintonGameAnalysis
-Check out the deployed Badminton Game (PASTE LINK)
+# Project 3 Badminton Game Analysis
+Check out the deployed Badminton Game [https://badminton-gas-03d473823731.herokuapp.com/]
 
 ## Table of Contents
 ### 1. [Introduction](#Introduction)
@@ -10,7 +10,7 @@ Check out the deployed Badminton Game (PASTE LINK)
 ### 7. [Testing](#testing)
 ### 8. [Deployment](#deployment)
 ### 9. [Future Improvements](#future-improvemnts)
-### 10.[Credits](#credits)
+### 10. [Credits](#credits)
 
 # Introduction 
 
@@ -66,7 +66,7 @@ The project follows the Model-View-Controller (MVC) framework:
 
 - Controller (Backend/Logic): Handles authentication, game data storage, and replay functionality
 
-<img src=".staticfiles\images\MVC_P3.PNG", alt="MVC for Project 3>
+<img src="staticfiles/images/MVC_P3.PNG", alt="MVC for Project 3>
 
 
 This project intends to satisfy the following Learning Objectives:
@@ -103,7 +103,8 @@ I have used EPIC to define this project's high-level goal and or objectives on t
 
 # WireFrame 
 ###### [Back to the top](#table-of-contents)
-<img src="staticfiles\images\wireframe_proj3.jpg" alt="wireframe project 3">
+<img src="staticfiles/images/wireframe_proj3.jpg" alt="wireframe laptop desktop view">
+<img src="staticfiles/images/wireframe_mobile.JPG" alt="wireframe mobile view">
 Wireframe for Game Analysis System page only, taking into condition the responsiveness.
 
 # Design and Features
@@ -162,11 +163,14 @@ Used this to test the quality of the website. Providing a comprehensive audit of
 Summary of areas where improvements are provided, this would be areas for improvements, check the pdf folders for the documents.
 
 ## Manual Testing
-Login details
-User: Test
-Password: Test@test.com
 Use the details to login to the Game Analysis System to create and replay a game on the system.
 
+Login details  
+_User:_ Test  
+_Password:_ Test@test.com
+
+### User Manual - How to use GAS Application
+Once you are logged in, go to 
 
 
 # Deployment
@@ -185,7 +189,7 @@ Deploy using Heroku Git:
 - git push heroku main
 
 Verify deployment by accessing the Heroku live link.
-Live Application: Game Analysis System on Heroku ([https://badminton-gas-03d473823731.herokuapp.com/](Link to Project 3 deployed))
+Live Application: Game Analysis System on Heroku ([https://badminton-gas-03d473823731.herokuapp.com/] (Right click to open link on a new tab Project 3 deployed))
 
 # Future Improvements
 Here are future feature ideas to further improvements on this project:
