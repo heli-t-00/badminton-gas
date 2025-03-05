@@ -170,7 +170,7 @@ _User:_ Test
 _Password:_ Test@test.com
 
 ### User Manual - How to use GAS Application
-Once you are logged in, go to 
+check the user manual document for steps on how to use the application.
 
 
 # Deployment
