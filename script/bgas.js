@@ -223,7 +223,7 @@
     // Web Server to load/save game details
     class BadWebServer {
       constructor() {
-        let un = "{{user.username}}"; //Gets username logged in as
+        let un = username; //Gets username logged in as
         console.log(`User Name=${un}`);
       }
       async loadGameNames() {
